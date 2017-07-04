@@ -71,6 +71,8 @@
 #'
 #' @examples
 #'
+#'\dontrun{
+#'
 #' data(Ara)
 #' names(Ara)
 #' gen<-Ara[[1]]
@@ -99,6 +101,8 @@
 #'
 #' parms<-lapply(1:chrnum, function(i){ return(scans[[i]][[1]]) })
 #' parms<-do.call(rbind,parms)
+#'
+#'}
 #'
 
 # could add @export there

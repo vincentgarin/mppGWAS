@@ -5,7 +5,7 @@
 \title{Determine haplotype blocks and haplotypes}
 \usage{
 haplo_blocks(gp, map, out.dir, hap = 1, hap.unit = 1,
-  sliding.window = FALSE, LD.based = FALSE, LD.threshold = 0.9)
+  sliding.window = FALSE, LD.based = FALSE, ld.threshold = 0.9)
 }
 \arguments{
 \item{gp}{\code{gpData} object with elements geno coded 0 1 2.}

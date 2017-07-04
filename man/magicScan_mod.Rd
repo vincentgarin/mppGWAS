@@ -69,6 +69,8 @@ The \code{magicQTL} package can be found there:
 }
 \examples{
 
+\dontrun{
+
 data(Ara)
 names(Ara)
 gen<-Ara[[1]]
@@ -97,6 +99,8 @@ nalleles=nalleles,model="Fixed-A") #scan the markers
 
 parms<-lapply(1:chrnum, function(i){ return(scans[[i]][[1]]) })
 parms<-do.call(rbind,parms)
+
+}
 
 }
 \references{

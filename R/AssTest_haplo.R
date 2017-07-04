@@ -86,6 +86,13 @@
 #' multiparent advanced generation intercross (MAGIC) populations.
 #' Genetics, 202(2), 471-486.
 #'
+#' @import sommer
+#' @import SKAT
+#' @import synbreed
+#' @import zoo
+#' @importFrom utils read.table write.table
+#' @importFrom stats model.matrix optim pchisq
+#'
 #' @export
 #'
 

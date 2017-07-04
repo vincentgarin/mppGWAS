@@ -60,7 +60,7 @@
 
 haplo_blocks <- function(gp, map, out.dir, hap = 1, hap.unit = 1,
                          sliding.window = FALSE, LD.based = FALSE,
-                         LD.threshold = 0.9){
+                         ld.threshold = 0.9){
 
   old.wd <- getwd()
 

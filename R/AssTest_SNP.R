@@ -1,21 +1,28 @@
 ###############
-# SNP_AssTest #
+# AssTest_SNP #
 ###############
 
 #' Single SNP Association Test
 #'
 #' Perform a single SNP genome wide association test using a kinship matrix
-#' to correct for the genetic background. By default, the kinship is computed
-#' using the method of Astle and Balding (2009). It is possible to compute
-#' a linkage disequilibrium adjusted kinship (LDAK) kinship matrix using the
-#' method of Speed et al. (2012) by introducing the weights computed with the
-#' function \code{\link{LDAK_weights}}.
+#' to correct for the genetic background.
+#'
+#' The function is a wrapper for the \code{mmer} function from the \code{sommer}
+#' package (Covarrubias-Pazaran, 2016). The model is fitted using the EMMA
+#' algorithm proposed by Kang et al. (2008).
+#'
+#' By default, the kinship matrix is computed using the method of Astle and
+#' Balding (2009). It is possible to compute a linkage disequilibrium adjusted
+#' kinship (LDAK) kinship matrix using the method of Speed et al. (2012) by
+#' introducing the weights computed with the function \code{\link{LDAK_weights}}.
+#' The model can be fitted using the kinship containing all markers or removing
+#' the markers of the scanned chromosome (\code{K_i = TRUE}).
 #'
 #' @param gp \code{gpData} object with elements geno coded 0 1 2 and family.
 #'
 #' @param trait \code{Numerical} vector of phenotypic trait values.
 #'
-#' @param map If Three columns \code{data.frame} with marker identifier,
+#' @param map Three columns \code{data.frame} with marker identifier,
 #' chromosome, and marker position (cM or bp).
 #'
 #' @param weights Two columns \code{data.frame} containing the marker
@@ -49,6 +56,9 @@
 #' Astle, W., & Balding, D. J. (2009). Population structure and cryptic
 #' relatedness in genetic association studies. Statistical Science, 451-471.
 #'
+#' Covarrubias-Pazaran G. 2016. Genome assisted prediction of quantitative traits
+#' using the R package sommer. PLoSONE 11(6):1-15.
+#'
 #' Speed, D., Hemani, G., Johnson, M. R., & Balding, D. J. (2012).
 #' Improved heritability estimation from genome-wide SNPs. The American Journal
 #' of Human Genetics, 91(6), 1011-1021.
@@ -56,21 +66,8 @@
 #' @export
 #'
 
-# gp <- gp.imp
-# trait <- pheno[, 1]
-# map <- map[, c(1, 2, 4)]
-#
-# mk.sel <- map_pz[, 1]
-# weights = NULL
-#
-# weights <- read.table("/home/vincent/Haplo_GRM/EUNAM/data/geno/LDAK_weights/EUNAM_LDAK_weights",
-#                       h = TRUE, stringsAsFactors = FALSE)
-# weights <- weights[, 1:2]
-#
-# power = -1
-# K_i <- FALSE
 
-SNP_AssTest <- function(gp, trait, map, weights = NULL, power = -1,
+AssTest_SNP <- function(gp, trait, map, weights = NULL, power = -1,
                         mk.sel = NULL, K_i = FALSE, n.cores = 1){
 
   # check that the list of markers in the map is the same as the list of the
@@ -91,7 +88,7 @@ SNP_AssTest <- function(gp, trait, map, weights = NULL, power = -1,
     if(!(sum(colnames(gp$geno) %in% weights[, 1]) == dim(gp$geno)[2])){
 
      stop(paste("The weight argument does not contain a value for each marker",
-                "in the gpData object."))
+                "in the gpData object (gp)."))
 
     }
   }

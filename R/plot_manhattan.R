@@ -18,6 +18,6 @@
 plot_manhattan <- function(res){
 
   colnames(res) <- c("SNP","CHR", "BP", "P")
-  manhattan(res, logp = FALSE)
+  qqman::manhattan(res, logp = FALSE)
 
 }

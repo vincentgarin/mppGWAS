@@ -8,8 +8,7 @@
 #' @param gp \code{gpData} object with elements geno coded 0 1 2 and family
 #'
 #' @param map Four columns \code{data.frame} with chromosome, marker id,
-#' getic position in cM and physical position in bp. with column names being
-#' "mk.id", "chr", "cM", "bp".
+#' getic position in cM and physical position in bp.
 #'
 #' @param out.dir output directory where the .bed files will be saved.
 #'
@@ -34,7 +33,7 @@ write_plink_bed <- function(gp, map, out.dir, prefix, plink.dir){
 
   # checks
 
-  if(!identical(colnames(geno), map$mk.id)){
+  if(!identical(colnames(geno), map[, 1])){
 
     stop("The markers in the map and the genotype matrix are not identical.")
 
@@ -62,7 +61,7 @@ write_plink_bed <- function(gp, map, out.dir, prefix, plink.dir){
 
   # .map file
 
-  map_file <- data.frame(map$chr, map$mk.id, map$cM, map$bp,
+  map_file <- data.frame(map[, 2], map[, 1], map[, 3], map[, 4],
                          stringsAsFactors = FALSE)
 
   write.table(map_file, file = file.path(out.dir, paste0(prefix, ".map")),

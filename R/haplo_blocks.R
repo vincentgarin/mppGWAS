@@ -14,7 +14,7 @@
 #' @param map Four columns \code{data.frame} with marker id, chromosome,
 #' getic position in cM and physical position in bp.
 #'
-#' @param out.dir output directory where the ldak weights will be stored
+#' @param out.dir output directory where temporary files will be stored.
 #'
 #' @param hap Defines either a number of markers (if \code{hap.unit=1}) or a
 #' genetic distance in cM (if \code{hap.unit=2}) that should be used for building

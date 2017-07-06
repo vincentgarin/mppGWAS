@@ -10,8 +10,7 @@ write_plink_bed(gp, map, out.dir, prefix, plink.dir)
 \item{gp}{\code{gpData} object with elements geno coded 0 1 2 and family}
 
 \item{map}{Four columns \code{data.frame} with chromosome, marker id,
-getic position in cM and physical position in bp. with column names being
-"mk.id", "chr", "cM", "bp".}
+getic position in cM and physical position in bp.}
 
 \item{out.dir}{output directory where the .bed files will be saved.}
 

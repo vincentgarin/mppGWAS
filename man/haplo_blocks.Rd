@@ -13,7 +13,7 @@ haplo_blocks(gp, map, out.dir, hap = 1, hap.unit = 1,
 \item{map}{Four columns \code{data.frame} with marker id, chromosome,
 getic position in cM and physical position in bp.}
 
-\item{out.dir}{output directory where the ldak weights will be stored}
+\item{out.dir}{output directory where temporary files will be stored.}
 
 \item{hap}{Defines either a number of markers (if \code{hap.unit=1}) or a
 genetic distance in cM (if \code{hap.unit=2}) that should be used for building

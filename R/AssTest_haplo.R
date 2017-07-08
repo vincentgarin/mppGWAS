@@ -58,7 +58,7 @@
 #' formula .Default = -1.
 #'
 #' @param K_i \code{Logical} specifying if the kinship correction should be done
-#' by removing the markers of the scanned chromosome. Default = FALSE.
+#' by removing the markers of the scanned chromosome. Default = TRUE.
 #'
 #'
 #' @return Return:
@@ -115,7 +115,7 @@
 # source('~/Haplo_GRM/mppAssTest/R/Rpoly_mod.R')
 
 AssTest_haplo <- function(haplo.geno, haplo.map, haplo.term = "fixed", trait, gp,
-                          map, weights = NULL, power = -1, K_i = FALSE){
+                          map, weights = NULL, power = -1, K_i = TRUE){
 
   # 1. Checks
   ###########

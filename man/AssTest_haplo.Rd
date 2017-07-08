@@ -5,7 +5,7 @@
 \title{Haplotype Association Test}
 \usage{
 AssTest_haplo(haplo.geno, haplo.map, haplo.term = "fixed", trait, gp, map,
-  weights = NULL, power = -1, K_i = FALSE)
+  weights = NULL, power = -1, K_i = TRUE)
 }
 \arguments{
 \item{haplo.geno}{\code{gpData} haplotype \code{character matrix}
@@ -43,7 +43,7 @@ parameter for marker scores standardization. The column of the marker matrix
 formula .Default = -1.}
 
 \item{K_i}{\code{Logical} specifying if the kinship correction should be done
-by removing the markers of the scanned chromosome. Default = FALSE.}
+by removing the markers of the scanned chromosome. Default = TRUE.}
 }
 \value{
 Return:

@@ -5,7 +5,7 @@
 \title{Single SNP Association Test}
 \usage{
 AssTest_SNP(gp, trait, map, weights = NULL, power = -1, mk.sel = NULL,
-  K_i = FALSE, n.cores = 1)
+  K_i = TRUE, n.cores = 1)
 }
 \arguments{
 \item{gp}{\code{gpData} object with elements geno coded 0 1 2 and family.}
@@ -28,10 +28,10 @@ formula .Default = -1.}
 
 \item{mk.sel}{\code{Character vector} specifying a list of marker to use
 for the kinship matrix computation. By default, the function use all markers
-of the \code{gpData} object.}
+of the \code{gp}.}
 
 \item{K_i}{\code{Logical} specifying if the kinship correction should be done
-by removing the markers of the scanned chromosome. Default = FALSE.}
+by removing the markers of the scanned chromosome. Default = TRUE.}
 
 \item{n.cores}{Default = 1.}
 }

@@ -16,7 +16,9 @@ adj.block.mk <- function(map, hap){
     nb_mk <- dim(map_i)[1]
 
     partition <- rollapply(data = 1:nb_mk, width = hap, by = hap, FUN = function(x) x)
-    map_plot <- rbind(map_plot, map_i[partition[, round(hap/2, 0)], c(2, 4)])
+    map_plot <- rbind.data.frame(map_plot, map_i[partition[, round(hap/2, 0)],
+                                                 c(1, 2, 4)],
+                                 stringsAsFactors = FALSE)
 
     set.id_i <- rep(1:dim(partition)[1], each = hap)
     set.id_i <- paste0("chr", i, "_", set.id_i)

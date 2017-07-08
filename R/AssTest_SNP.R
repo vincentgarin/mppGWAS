@@ -38,10 +38,10 @@
 #'
 #' @param mk.sel \code{Character vector} specifying a list of marker to use
 #' for the kinship matrix computation. By default, the function use all markers
-#' of the \code{gpData} object.
+#' of the \code{gp}.
 #'
 #' @param K_i \code{Logical} specifying if the kinship correction should be done
-#' by removing the markers of the scanned chromosome. Default = FALSE.
+#' by removing the markers of the scanned chromosome. Default = TRUE.
 #'
 #' @param n.cores Default = 1.
 #'
@@ -68,7 +68,7 @@
 
 
 AssTest_SNP <- function(gp, trait, map, weights = NULL, power = -1,
-                        mk.sel = NULL, K_i = FALSE, n.cores = 1){
+                        mk.sel = NULL, K_i = TRUE, n.cores = 1){
 
   # check that the list of markers in the map is the same as the list of the
   # genotype matrix
@@ -103,6 +103,8 @@ AssTest_SNP <- function(gp, trait, map, weights = NULL, power = -1,
          "not in the map."))
 
   }
+
+  ############ end checks
 
   X <- IncMat_cross(gp$covar$family)
 

@@ -2,6 +2,7 @@
 
 export(AssTest_SNP)
 export(AssTest_haplo)
+export(AssTest_kernel)
 export(LDAK_kinship)
 export(LDAK_kinship2)
 export(LDAK_weights)

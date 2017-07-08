@@ -58,7 +58,8 @@ adj.block.cM <- function(map, hap){
 
     set.id <- c(set.id, set.id_i)
     snp.id <- c(snp.id, unlist(list.mk_i))
-    map_plot <- rbind(map_plot, cbind(rep(i, length(map_plot_i)), map_plot_i))
+    map_plot <- rbind.data.frame(map_plot, cbind(unique(set.id_i),rep(i, length(map_plot_i)),
+                                      map_plot_i), stringsAsFactors = FALSE)
 
 
   }

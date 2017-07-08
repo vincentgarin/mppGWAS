@@ -17,6 +17,7 @@
 
 plot_manhattan <- function(res){
 
+  # rownames(res) <- res[, 1]
   colnames(res) <- c("SNP","CHR", "BP", "P")
   qqman::manhattan(res, logp = FALSE)
 

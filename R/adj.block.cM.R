@@ -10,9 +10,11 @@ adj.block.cM <- function(map, hap){
   snp.id <- c()
   map_plot <- c() # position to use for the plotting
 
-  for(i in 1:10){
+  chr.id <- unique(map[, 2])
 
-    map_i <- map[map[, 2] == i, ]
+  for(i in 1:length(chr.id)){
+
+    map_i <- map[map[, 2] == chr.id[i], ]
     nb_mk <- dim(map_i)[1]
     mk.names <- map_i[, 1]
 

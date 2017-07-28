@@ -14,9 +14,11 @@ sliding.window.cM <- function(map, hap, gap){
   snp.id <- c()
   map_plot <- c() # position to use for the plotting
 
-  for(i in 1:10){
+  chr.id <- unique(map[, 2])
 
-    map_i <- map[map[, 2] == i, ]
+  for(i in 1:length(chr.id)){
+
+    map_i <- map[map[, 2] == chr.id[i], ]
     dist.cM <- map_i[, 3]
 
     # determination of the point to stop

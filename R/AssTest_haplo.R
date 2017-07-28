@@ -30,7 +30,7 @@
 #'
 #' @param haplo.map Four columns \code{data.frame} haplotype map corresponding
 #' to the list of haplotypes present in \code{haplo.geno} with haplo id,
-#' chromosome, getic position in cM and physical position in bp.
+#' chromosome, genetic position in cM and physical position in bp.
 #'
 #' @param haplo.term \code{Character} variable indicating if the haplotype term
 #' should be computed as fixed ("fixed") or random ("random").

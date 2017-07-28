@@ -47,7 +47,8 @@
 #'
 #' @return Return:
 #'
-#' \item{results}{The results}
+#' \item{results}{Four column data.frame with marker identifier, chromosome,
+#' position and -log10(p-value).}
 #'
 #' @author Vincent Garin
 #'

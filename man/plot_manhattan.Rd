@@ -4,10 +4,12 @@
 \alias{plot_manhattan}
 \title{Manhattan plot of Association Test results}
 \usage{
-plot_manhattan(res)
+plot_manhattan(res, ...)
 }
 \arguments{
 \item{res}{result of function \code{SNP_AssTest}.}
+
+\item{...}{Arguments passed on to other plot/points functions}
 }
 \description{
 Plot the results of an association test using manhattan plot using the

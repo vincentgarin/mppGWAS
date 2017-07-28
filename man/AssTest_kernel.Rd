@@ -91,6 +91,15 @@ Perform a kernel genome wide association test using a kinship matrix
 to correct for the genetic background.
 }
 \details{
+The first step of the analysis is to partition the genome into a certain
+number of markers sets. Several strategies are possibles. \code{hap}
+determine the size of the block or window. It can be defined in number of
+markers (\code{hap.unit = 1}) or in cM (\code{hap.unit = 2}). The blocks
+can be adjacent (no overlapping, e.g. b1 = 123, b2 = 456, etc.) or can
+be deterimed by sliding window (\code{sliding.window = TRUE}). When user
+choose sliding window it is also possible to define the number of marker
+between the two centers of a window using \code{gap}.
+
 The genome scan is based on the sequence kernel association test (SAKT)
 proposed by Wu et al. (2011) calling the SKAT package. This means that the
 function determines the genetic relatedness between lines using a set of

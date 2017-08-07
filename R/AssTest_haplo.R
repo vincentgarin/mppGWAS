@@ -25,7 +25,7 @@
 #'
 #' @param haplo.block \code{List} containing the required data to compute an
 #' haplotype model. This object can be obtained using the function
-#' \code{\link{haplo_blocks()}}.
+#' \code{\link{haplo_blocks}}.
 #'
 #' @param haplo.term \code{Character} variable indicating if the haplotype term
 #' should be computed as fixed ("fixed") or random ("random").
@@ -82,12 +82,12 @@
 #' Genetics, 202(2), 471-486.
 #'
 #' @import data.table
-#' @import sommer
 #' @import SKAT
-#' @import synbreed
 #' @import zoo
-#' @importFrom utils read.table write.table
-#' @importFrom stats model.matrix optim pchisq
+#' @importFrom utils read.table setTxtProgressBar tail txtProgressBar write.table
+#' @importFrom sommer mmer
+#' @importFrom stats as.formula model.matrix optim pchisq
+#' @importFrom qqman manhattan qq
 #'
 #' @export
 #'

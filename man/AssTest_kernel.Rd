@@ -10,7 +10,7 @@ AssTest_kernel(SSD_file, gp, map, trait, kernel = "linear",
 }
 \arguments{
 \item{SSD_file}{file containing the genome partition in SNP set obtained
-with the function \code{\link{generate_SSD_file()}}.}
+with the function \code{\link{generate_SSD_file}}.}
 
 \item{gp}{\code{gpData} object with elements geno coded 0 1 2 and family
 \strong{containing the list of markers that will be used to compute the

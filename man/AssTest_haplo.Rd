@@ -10,7 +10,7 @@ AssTest_haplo(haplo.block, haplo.term = "fixed", gp, map, trait,
 \arguments{
 \item{haplo.block}{\code{List} containing the required data to compute an
 haplotype model. This object can be obtained using the function
-\code{\link{haplo_blocks()}}.}
+\code{\link{haplo_blocks}}.}
 
 \item{haplo.term}{\code{Character} variable indicating if the haplotype term
 should be computed as fixed ("fixed") or random ("random").

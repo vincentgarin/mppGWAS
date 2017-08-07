@@ -7,9 +7,10 @@ Maintainer: Vincent Garin <vincent.garin@wur.nl>
 Description: 1-SNP, haplotypes and Kernel association test in multi-parent populations.
 License: GPL (>=2)
 Imports:
+    data.table,
+    qqman,
     sommer,
     SKAT,
-    synbreed,
     zoo,
     utils, 
     stats

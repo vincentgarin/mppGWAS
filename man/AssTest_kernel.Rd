@@ -4,14 +4,17 @@
 \alias{AssTest_kernel}
 \title{Kernel Association Test}
 \usage{
-AssTest_kernel(gp, map, trait, kernel = "linear", weights.beta = c(1, 25),
-  weights.kernel = NULL, out.dir, plink.dir, hap = 1, hap.unit = 1,
-  sliding.window = FALSE, gap = 1, LD.based = FALSE, ld.threshold = 0.9,
-  kin.correct = TRUE, K_i = TRUE, weights = NULL, power = -1,
-  mk.sel = NULL)
+AssTest_kernel(SSD_file, gp, map, trait, kernel = "linear",
+  weights.beta = c(1, 25), weights.kernel = NULL, kin.correct = TRUE,
+  K_i = TRUE, weights = NULL, power = -1)
 }
 \arguments{
-\item{gp}{\code{gpData} object with elements geno coded 0 1 2 and family.}
+\item{SSD_file}{file containing the genome partition in SNP set obtained
+with the function \code{\link{generate_SSD_file()}}.}
+
+\item{gp}{\code{gpData} object with elements geno coded 0 1 2 and family
+\strong{containing the list of markers that will be used to compute the
+kinship matrix}.}
 
 \item{map}{Four columns \code{data.frame} with marker id, chromosome,
 getic position in cM and physical position in bp.}
@@ -30,34 +33,6 @@ the weighted kernels. Default = c(1, 25).}
 \item{weights.kernel}{NOT AVAILABLE NOW. Vector of own provided weights for
 for the kernel function. Default = NULL.}
 
-\item{out.dir}{output directory where temporary files will be stored.
-
-# @param prefix \code{Character} string. The SSD files will be saved as
-# prefix.SetID, prefix.SSD and prefix.SSD.info in \code{out.dir}.}
-
-\item{plink.dir}{directory where the plink executable program is located.}
-
-\item{hap}{Defines either a number of markers (if \code{hap.unit=1}) or a
-genetic distance in cM (if \code{hap.unit=2}) that should be used for building
-haplo blocks. Default = 1.}
-
-\item{hap.unit}{Set to 1 for building haplo blocks based on number of
-markers, set to 2 for building haplo blocks based on markers lying in a
-specified stretch of the chromosome (in cM). Default = 1.}
-
-\item{sliding.window}{\code{logical} value specifying if
-the haplotype blocks should be construct using a sliding window. If not,
-the haplotype blocks are adjacent and not overlapping
-(e.g. b1 = 123, b2 = 456, etc.). Default = TRUE.}
-
-\item{gap}{\code{Numeric} value indicating the number of markers between the
-cemter of two consecutive haplotype blocks. Default = 1.}
-
-\item{LD.based}{NOT AVAILABLE NOW. \code{logical} value specifying if the
-haplotype blocks should be constructed based on LD. Default = FALSE.}
-
-\item{ld.threshold}{NOT AVAILABLE NOW.}
-
 \item{kin.correct}{\code{Logical} value. If \code{kin.correct = TRUE}, the
 model will use a kinship matrix to correct for the genetic background.
 Default = TRUE.}
@@ -75,10 +50,6 @@ correspond to the Astle and Balding kinship matrix}
 parameter for marker scores standardization. The column of the marker matrix
 (X.j) are multiplied by var(X.j)^(power/2). It correspond to alpha in the
 formula .Default = -1.}
-
-\item{mk.sel}{\code{Character vector} specifying a list of marker to use
-for the kinship matrix computation. By default, the function use all markers
-of the \code{gp}.}
 }
 \value{
 Return:

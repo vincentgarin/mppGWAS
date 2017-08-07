@@ -12,7 +12,7 @@ sliding.window.mk <- function(map, hap, gap){
 
   set.id <- c()
   snp.id <- c()
-  map_plot <- c() # position to use for the plotting
+  # map_plot <- c() # position to use for the plotting
 
   chr.id <- unique(map[, 2])
 
@@ -22,9 +22,9 @@ sliding.window.mk <- function(map, hap, gap){
     nb_mk <- dim(map_i)[1]
 
     partition <- rollapply(data = 1:nb_mk, width = hap, by = gap, FUN = function(x) x)
-    map_plot <- rbind.data.frame(map_plot, map_i[partition[, round(hap/2, 0)],
-                                                 c(1, 2, 4)],
-                                 stringsAsFactors = FALSE)
+    # map_plot <- rbind.data.frame(map_plot, map_i[partition[, round(hap/2, 0)],
+    #                                             c(1, 2, 4)],
+    #                             stringsAsFactors = FALSE)
 
     set.id_i <- rep(1:dim(partition)[1], each = hap)
     set.id_i <- paste0("chr", i, "_", set.id_i)
@@ -39,6 +39,6 @@ sliding.window.mk <- function(map, hap, gap){
 
   SetID.file <- data.frame(set.id, snp.id, stringsAsFactors = FALSE)
 
-  return(list(SetID.file, map_plot))
+  return(SetID.file)
 
 }

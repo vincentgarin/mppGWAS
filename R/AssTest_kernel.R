@@ -41,7 +41,12 @@
 #' can be fitted using the kinship containing all markers or removing
 #' the markers of the scanned chromosome (\code{K_i = TRUE}).
 #'
-#' @param gp \code{gpData} object with elements geno coded 0 1 2 and family.
+#' @param SSD_file file containing the genome partition in SNP set obtained
+#' with the function \code{\link{generate_SSD_file()}}.
+#'
+#' @param gp \code{gpData} object with elements geno coded 0 1 2 and family
+#' \strong{containing the list of markers that will be used to compute the
+#' kinship matrix}.
 #'
 #' @param map Four columns \code{data.frame} with marker id, chromosome,
 #' getic position in cM and physical position in bp.
@@ -60,34 +65,6 @@
 #' @param weights.kernel NOT AVAILABLE NOW. Vector of own provided weights for
 #' for the kernel function. Default = NULL.
 #'
-#' @param out.dir output directory where temporary files will be stored.
-#'
-#' # @param prefix \code{Character} string. The SSD files will be saved as
-#' # prefix.SetID, prefix.SSD and prefix.SSD.info in \code{out.dir}.
-#'
-#' @param plink.dir directory where the plink executable program is located.
-#'
-#' @param hap Defines either a number of markers (if \code{hap.unit=1}) or a
-#' genetic distance in cM (if \code{hap.unit=2}) that should be used for building
-#' haplo blocks. Default = 1.
-#'
-#' @param hap.unit Set to 1 for building haplo blocks based on number of
-#' markers, set to 2 for building haplo blocks based on markers lying in a
-#' specified stretch of the chromosome (in cM). Default = 1.
-#'
-#' @param sliding.window \code{logical} value specifying if
-#' the haplotype blocks should be construct using a sliding window. If not,
-#' the haplotype blocks are adjacent and not overlapping
-#' (e.g. b1 = 123, b2 = 456, etc.). Default = TRUE.
-#'
-#' @param gap \code{Numeric} value indicating the number of markers between the
-#' cemter of two consecutive haplotype blocks. Default = 1.
-#'
-#' @param LD.based NOT AVAILABLE NOW. \code{logical} value specifying if the
-#' haplotype blocks should be constructed based on LD. Default = FALSE.
-#'
-#' @param ld.threshold NOT AVAILABLE NOW.
-#'
 #' @param kin.correct \code{Logical} value. If \code{kin.correct = TRUE}, the
 #' model will use a kinship matrix to correct for the genetic background.
 #' Default = TRUE.
@@ -105,10 +82,6 @@
 #' parameter for marker scores standardization. The column of the marker matrix
 #' (X.j) are multiplied by var(X.j)^(power/2). It correspond to alpha in the
 #' formula .Default = -1.
-#'
-#' @param mk.sel \code{Character vector} specifying a list of marker to use
-#' for the kinship matrix computation. By default, the function use all markers
-#' of the \code{gp}.
 #'
 #'
 #' @return Return:
@@ -147,27 +120,14 @@
 # kernel <- "linear"
 # weights.beta = c(1, 25)
 # weights.kernel = NULL
-# out.dir <- out.dir
-# # prefix <- "Test"
-# plink.dir <- plink.dir
-# hap = 1
-# hap.unit = 2
-# sliding.window = FALSE
-# gap = 1
-# LD.based = FALSE
-# ld.threshold = 0.9
 # weights = weights
 # power = -1
-# mk.sel = mk.sel
 # K_i = TRUE
 
-AssTest_kernel <- function(gp, map, trait, kernel = "linear",
+AssTest_kernel <- function(SSD_file, gp, map, trait, kernel = "linear",
                            weights.beta = c(1, 25), weights.kernel = NULL,
-                           out.dir, plink.dir,
-                           hap = 1, hap.unit = 1, sliding.window = FALSE,
-                           gap = 1, LD.based = FALSE, ld.threshold = 0.9,
                            kin.correct = TRUE, K_i = TRUE, weights = NULL,
-                           power = -1, mk.sel = NULL){
+                           power = -1){
 
   # 1. Checks
   ###########
@@ -195,47 +155,13 @@ AssTest_kernel <- function(gp, map, trait, kernel = "linear",
     }
   }
 
-  # check that the selection of marker is present in the map
-
-  if( sum(!(mk.sel %in% map[, 1])) !=0 ){
-
-    prob.mk <- paste(mk.sel[!(mk.sel %in% map[, 1])], collapse = ", ")
-
-    stop(paste("the following markers:", prob.mk, "are present in mk.sel but",
-               "not in the map."))
-
-  }
 
   ######################### end checks
-
-  # 1. Process the data computation of the SSD files
-  ##################################################
-
-  # create a temporary directory
-
-  temp.dir <- file.path(out.dir, "temp_dir")
-  system(paste("mkdir", temp.dir))
-
-  SSD.file <- generate_SSD_file(gp = gp, map = map, out.dir = temp.dir,
-                                prefix = "SSD_file", plink.dir = plink.dir,
-                                hap = hap, hap.unit = hap.unit,
-                                sliding.window = sliding.window,
-                                gap = gap, LD.based = LD.based,
-                                ld.threshold = ld.threshold)
-
-  # need to review that !
-
-  SSD.file[, 2] <- as.numeric(SSD.file[, 2])
-  SSD.file[, 3] <- as.numeric(SSD.file[, 3])
-
 
   # 2. Open the SSD file
   ######################
 
-  File.SSD <- file.path(temp.dir, "SSD_file.SSD")
-  File.Info <- file.path(temp.dir, "SSD_file.SSD.info")
-
-  SSD.INFO <- Open_SSD(File.SSD, File.Info)
+  SSD.INFO <- Open_SSD(SSD_file[[1]], SSD_file[[2]])
 
   # 3. Computation of the genome scan
   ###################################
@@ -249,99 +175,93 @@ AssTest_kernel <- function(gp, map, trait, kernel = "linear",
                                           collapse = "+"))
 
 
- if(!kin.correct){ # No kinship correction
+  if(!kin.correct){ # No kinship correction
 
-   obj <- SKAT_Null_Model(formula = as.formula(null.mod.form), data = dataset,
-                          out_type="C")
+    obj <- SKAT_Null_Model(formula = as.formula(null.mod.form), data = dataset,
+                           out_type="C")
 
-   out <- SKAT.SSD.All(SSD.INFO, obj, kernel = kernel,
-                       weights.beta = weights.beta,
-                       obj.SNPWeight = weights.kernel)
+    out <- SKAT.SSD.All(SSD.INFO, obj, kernel = kernel,
+                        weights.beta = weights.beta,
+                        obj.SNPWeight = weights.kernel)
 
-   res <- data.frame(SSD.file, -log10(out$results[, 2]),
-                     stringsAsFactors = FALSE)
-   colnames(res) <- c("mk.id", "Chrom", "Position", "p.val")
+    res <- data.frame(SSD_file[[3]], -log10(out$results[, 2]),
+                      stringsAsFactors = FALSE)
+    colnames(res) <- c("mk.id", "Chrom", "Position", "p.val")
 
- } else {
+  } else {
 
-   if(!K_i){ # Use the whole genome for K.
+    if(!K_i){ # Use the whole genome for K.
 
-     # Preparation of the kinship matrix
+      # Preparation of the kinship matrix
 
-     K <- mpp_kinship(gp = gp, weights = weights, power = power, mk.sel = mk.sel)
+      K <- mpp_kinship(gp = gp, weights = weights, power = power)
 
-     # compute the NULL model cr + kinship (EMMA_x)
+      # compute the NULL model cr + kinship (EMMA_x)
 
-     obj <- SKAT_NULL_emmaX(formula = as.formula(null.mod.form), data = dataset,
-                            K = K, llim = -10, ulim = 10)
+      obj <- SKAT_NULL_emmaX(formula = as.formula(null.mod.form), data = dataset,
+                             K = K, llim = -10, ulim = 10)
 
-     out <- SKAT.SSD.All(SSD.INFO, obj, kernel = kernel,
-                         weights.beta = weights.beta,
-                         obj.SNPWeight = weights.kernel)
+      out <- SKAT.SSD.All(SSD.INFO, obj, kernel = kernel,
+                          weights.beta = weights.beta,
+                          obj.SNPWeight = weights.kernel)
 
-     res <- data.frame(SSD.file, -log10(out$results[, 2]),
-                       stringsAsFactors = FALSE)
-     colnames(res) <- c("mk.id", "Chrom", "Position", "p.val")
-
-
-   } else { # Remove the kth chromosome for the computation of K.
-
-     # make a temporary map to remove the markers on the considered chromsome.
-
-     if(!is.null(mk.sel)){
-
-       mk.sel_temp <- map[map[, 1] %in% mk.sel, ]
-
-     } else { mk.sel_temp <- map }
-
-     res <- c()
-     chr.id <- unique(mk.sel_temp[, 2])
-     n.chr <- length(chr.id)
-
-     # source('~/Haplo_GRM/mppAssTest/R/SKAT.SSD.All.R')
-
-     for(i in 1:n.chr){
-
-       # modify the SSD.INFO
-
-       SSD.INFO_i <- SSD.INFO
-       SSD.INFO_i$SetInfo <- SSD.INFO_i$SetInfo[SSD.file[, 2] == chr.id[i], ]
-       SSD.INFO_i$nSets <- sum(SSD.file[, 2] == chr.id[i])
-
-       # adapt the list of selected markers
-
-       mk.sel_i <- mk.sel_temp[mk.sel_temp[, 2] != chr.id[i], 1]
-
-       K <- mpp_kinship(gp = gp, weights = weights, power = power,
-                        mk.sel = mk.sel_i)
+      res <- data.frame(SSD_file[[3]], -log10(out$results[, 2]),
+                        stringsAsFactors = FALSE)
+      colnames(res) <- c("set.id", "chr", "cM", "bp", "p.val")
 
 
-       # compute the NULL model cr + kinship (EMMA_x)
+    } else { # Remove the kth chromosome for the computation of K.
 
-       obj <- SKAT_NULL_emmaX(formula = as.formula(null.mod.form), data = dataset,
-                              K = K, llim = -10, ulim = 10)
+      # make a temporary map to remove the markers on the considered chromsome.
 
-       out_i <- SKAT.SSD.All_Ki(SSD.INFO = SSD.INFO_i, obj, kernel = kernel,
-                             weights.beta = weights.beta,
-                             obj.SNPWeight = weights.kernel)
+      mk.sel_temp <- map
+
+      res <- c()
+      chr.id <- unique(mk.sel_temp[, 2])
+      n.chr <- length(chr.id)
+
+      for(i in 1:n.chr){
+
+        # modify the SSD.INFO
+
+        SSD.INFO_i <- SSD.INFO
+        SSD.INFO_i$SetInfo <- SSD.INFO_i$SetInfo[SSD_file[[3]][, 2] == chr.id[i], ]
+        SSD.INFO_i$nSets <- sum(SSD_file[[3]][, 2] == chr.id[i])
+
+        # adapt the list of selected markers
+
+        mk.sel_i <- mk.sel_temp[mk.sel_temp[, 2] != chr.id[i], 1]
+
+        K <- mpp_kinship(gp = gp, weights = weights, power = power,
+                         mk.sel = mk.sel_i)
 
 
-       res_i <- data.frame(SSD.file[SSD.file[, 2] == chr.id[i], ],
-                           -log10(out_i$results[, 2]), stringsAsFactors = FALSE)
+        # compute the NULL model cr + kinship (EMMA_x)
 
-       colnames(res_i) <- c("mk.id", "Chrom", "Position", "p.val")
+        obj <- SKAT_NULL_emmaX(formula = as.formula(null.mod.form), data = dataset,
+                               K = K, llim = -10, ulim = 10)
 
-       res <- rbind(res, res_i)
+        out_i <- SKAT.SSD.All_Ki(SSD.INFO = SSD.INFO_i, obj, kernel = kernel,
+                                 weights.beta = weights.beta,
+                                 obj.SNPWeight = weights.kernel)
 
-     }
 
-   } # end K_i models
+        res_i <- data.frame(SSD_file[[3]][SSD_file[[3]][, 2] == chr.id[i], ],
+                            -log10(out_i$results[, 2]), stringsAsFactors = FALSE)
 
- }
+        colnames(res_i) <- c("set.id", "chr", "cM", "bp", "p.val")
+
+        res <- rbind(res, res_i)
+
+      }
+
+    } # end K_i models
+
+  }
 
   Close_SSD()
 
-  system(paste("rm -rf", temp.dir))
+  # system(paste("rm -rf", temp.dir))
 
 
   return(res)

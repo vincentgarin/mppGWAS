@@ -86,6 +86,7 @@ generate_SSD_file <- function(gp, map, out.dir, prefix, plink.dir, hap = 1,
 
   if(LD.based){
 
+    stop("LD.based option is not available for the moment")
 
   } else {
 
@@ -93,17 +94,11 @@ generate_SSD_file <- function(gp, map, out.dir, prefix, plink.dir, hap = 1,
 
       if(hap.unit == 1){# mk number
 
-        partition <- sliding.window.mk(map = map, hap = hap, gap = gap)
-
-        SetID.file <- partition[[1]]
-        map_plot <- partition[[2]]
+        SetID.file <- sliding.window.mk(map = map, hap = hap, gap = gap)
 
       } else if (hap.unit == 2){ # cM distance
 
-        partition <- sliding.window.cM(map = map, hap = hap, gap = gap)
-
-        SetID.file <- partition[[1]]
-        map_plot <- partition[[2]]
+        SetID.file <- sliding.window.cM(map = map, hap = hap, gap = gap)
 
       }
 
@@ -111,21 +106,43 @@ generate_SSD_file <- function(gp, map, out.dir, prefix, plink.dir, hap = 1,
 
       if(hap.unit == 1){
 
-        partition <- adj.block.mk(map = map, hap = hap)
-        SetID.file <- partition[[1]]
-        map_plot <- partition[[2]]
+        SetID.file <- adj.block.mk(map = map, hap = hap)
+
 
       } else if (hap.unit == 2){
 
-        partition <- adj.block.cM(map = map, hap = hap)
-        SetID.file <- partition[[1]]
-        map_plot <- partition[[2]]
+        SetID.file <- adj.block.cM(map = map, hap = hap)
 
       }
 
     }
 
   }
+
+  # produce the corresponding map
+
+  set_id <- unique(SetID.file$set.id)
+
+  chr.ind <- unlist(lapply(X = set_id,
+                           FUN = function(x) strsplit(x = x, split = "_")[[1]][1]))
+
+  chr.id <- unique(chr.ind)
+
+  chr <- rep(1:length(chr.id), time = table(factor(chr.ind, levels = chr.id)))
+
+  cM <- rep(0, length(set_id))
+  bp <- rep(0, length(set_id))
+
+  for(j in 1:length(set_id)){
+
+    mk.j <- SetID.file[SetID.file[, 1] == set_id[j], 2]
+    cM[j] <- mean(map[map[, 1] %in% mk.j, 3])
+    bp[j] <- mean(map[map[, 1] %in% mk.j, 4])
+
+  }
+
+  map.hp <- data.frame(set_id, chr, cM, bp, stringsAsFactors = FALSE)
+
 
   # save the SetID file
 
@@ -142,8 +159,6 @@ generate_SSD_file <- function(gp, map, out.dir, prefix, plink.dir, hap = 1,
 
   # 3. Generate the SSID files
   ############################
-
-  # setwd("/home/vincent/Haplo_GRM/")
 
 
   # Create the MW File
@@ -164,6 +179,6 @@ generate_SSD_file <- function(gp, map, out.dir, prefix, plink.dir, hap = 1,
   system(paste("rm -rf", temp.dir))
 
 
-  return(map_plot)
+  return(list(File.SSD = File.SSD, File.Info = File.Info, map.hp = map.hp))
 
 }

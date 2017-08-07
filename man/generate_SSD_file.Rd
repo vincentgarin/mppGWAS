@@ -35,7 +35,7 @@ the haplotype blocks are adjacent and not overlapping
 (e.g. b1 = 123, b2 = 456, etc.). Default = TRUE.}
 
 \item{gap}{\code{Numeric} value indicating the number of markers between the
-cemter of two consecutive haplotype blocks. Default = 1.}
+center of two consecutive haplotype blocks. Default = 1.}
 
 \item{LD.based}{NOT AVAILABLE NOW. \code{logical} value specifying if the
 haplotype blocks should be constructed based on LD. Default = FALSE.}

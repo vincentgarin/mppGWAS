@@ -41,8 +41,8 @@ write_plink_bed <- function(gp, map, out.dir, prefix, plink.dir){
 
   # .ped file
 
-  fam.id <- as.character(gp.imp$covar$family)
-  gen.id <- as.character(gp.imp$covar$id)
+  fam.id <- as.character(gp$covar$family)
+  gen.id <- as.character(gp$covar$id)
   pat.id <- mat.id <- rep(0, dim(geno)[1])
   sex <- rep(9, dim(geno)[1])
   pheno <- rep(-9, dim(geno)[1])

@@ -4,32 +4,27 @@
 \alias{AssTest_haplo}
 \title{Haplotype Association Test}
 \usage{
-AssTest_haplo(haplo.geno, haplo.map, haplo.term = "fixed", trait, gp, map,
+AssTest_haplo(haplo.block, haplo.term = "fixed", gp, map, trait,
   weights = NULL, power = -1, K_i = TRUE)
 }
 \arguments{
-\item{haplo.geno}{\code{gpData} haplotype \code{character matrix}
-with haplotype block in rows and genotype in columns. Row i specify the
-haplotype code for each genotype. This object can be obtained using the
-function \code{haplo_blocks()}.}
-
-\item{haplo.map}{Four columns \code{data.frame} haplotype map corresponding
-to the list of haplotypes present in \code{haplo.geno} with haplo id,
-chromosome, getic position in cM and physical position in bp.}
+\item{haplo.block}{\code{List} containing the required data to compute an
+haplotype model. This object can be obtained using the function
+\code{\link{haplo_blocks()}}.}
 
 \item{haplo.term}{\code{Character} variable indicating if the haplotype term
 should be computed as fixed ("fixed") or random ("random").
 Default = "fixed".}
 
-\item{trait}{\code{Numerical} vector of phenotypic trait values.}
-
 \item{gp}{\code{gpData} object with elements geno coded 0 1 2 and family
-containing the list of markers that will be used to compute the kinship
-matrix.}
+\strong{containing the list of markers that will be used to compute the
+kinship matrix}}
 
 \item{map}{Three columns \code{data.frame} corresponding to the list of
 markers present in \code{gp}. The three columns represent the marker
 identifier, the chromosome, and the marker position (cM or bp).}
+
+\item{trait}{\code{Numerical} vector of phenotypic trait values.}
 
 \item{weights}{Two columns \code{data.frame} containing the marker
 identifiers and the weights marker weights. For example the weights obtained

@@ -38,7 +38,8 @@ by removing the markers of the scanned chromosome. Default = TRUE.}
 \value{
 Return:
 
-\item{results}{The results}
+\item{results}{Four column data.frame with marker identifier, chromosome,
+position and -log10(p-value).}
 }
 \description{
 Perform a single SNP genome wide association test using a kinship matrix

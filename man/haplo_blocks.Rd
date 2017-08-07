@@ -4,16 +4,14 @@
 \alias{haplo_blocks}
 \title{Determine haplotype blocks and haplotypes}
 \usage{
-haplo_blocks(gp, map, out.dir, hap = 1, hap.unit = 1,
-  sliding.window = FALSE, LD.based = FALSE, ld.threshold = 0.9)
+haplo_blocks(gp, map, hap = 1, hap.unit = 1, sliding.window = FALSE,
+  gap = 1, LD.based = FALSE, ld.threshold = 0.9)
 }
 \arguments{
 \item{gp}{\code{gpData} object with elements geno coded 0 1 2.}
 
 \item{map}{Four columns \code{data.frame} with marker id, chromosome,
 getic position in cM and physical position in bp.}
-
-\item{out.dir}{output directory where temporary files will be stored.}
 
 \item{hap}{Defines either a number of markers (if \code{hap.unit=1}) or a
 genetic distance in cM (if \code{hap.unit=2}) that should be used for building
@@ -23,11 +21,12 @@ haplo blocks. Default = 1.}
 markers, set to 2 for building haplo blocks based on markers lying in a
 specified stretch of the chromosome (in cM). Default = 1.}
 
-\item{sliding.window}{NOT AVAILABLE NOW. \code{logical} value specifying if
-the haplotype blocks should be construct using a sliding window. ... .
-Default = FALSE.
+\item{sliding.window}{\code{logical} value specifying if
+the haplotype blocks should be construct using a sliding window.
+Default = FALSE.}
 
-[...]}
+\item{gap}{\code{Numeric} value indicating the number of markers between the
+center of two consecutive haplotype blocks. Default = 1.}
 
 \item{LD.based}{NOT AVAILABLE NOW. \code{logical} value specifying if the
 haplotype blocks should be constructed based on LD. Default = FALSE.}
@@ -35,20 +34,34 @@ haplotype blocks should be constructed based on LD. Default = FALSE.}
 \item{ld.threshold}{NOT AVAILABLE NOW.}
 }
 \value{
-Return a list containing the following elements:
+Return a list of the three following lists:
 
-\item{haplo.geno}{Data frame with in row the haplotype block and in column
-the genotypes. For each haplotype, the haplotype alleles are coded with
-a different haplotype score.}
+\item{gen}{List of haplotype incidence matrix per chromosome. For each
+chromosome, the haplotype incidences matrices of all haplotype block are
+agregated in a single numeric matrix. The column represent the genotype
+and the row the haplotype of the different blocks. The total number of row
+is equal to the sum of the number of different haplotype per block. For
+example if the chromosome contain two haplotype block with respectively 3 and
+6 haplotype, then the number or row will be 9 (3 + 6). For each haplotype
+block, the incidence matrix specifies the haplotype owned by the different
+genotypes using 0 1 number.}
 
-\item{haplo.map}{Four column map data frame with the haplotpype block id
-the chromsome, the cM and the bp position of the haplotype block.}
+\item{map}{List of haplotype block map per chromosome. For each chromosome,
+the list contain a four column data frame with: the haplotype block
+identifier, the chromosome, the position in cM and in bp. The positions
+are the average cM and bp values of the marker present in the haplotype
+block.}
+
+\item{nalleles}{List of vector per chrsomosome. For each chromosome, the
+length of the vector correspond to the number of haplotype blocks contained
+on the current chromosome. For each haplotype block it specify the number of
+different haplotypes.}
 }
 \description{
-Determine haplotype block and haplotypes using the SelectionTools package
-(\url{http://www.population-genetics.de/~frisch-m/}).
-The haplotype blocks can be determined based on several criteria:
-number of markers, distance in cM or LD based.
+Determine haplotype block and haplotypes. The haplotype blocks can be
+determined based on several criteria: number of markers, distance in cM or
+LD based (not for the moment). The blocks can be adjacent (non-overlapping)
+or they can be determined using a sliding window.
 }
 \author{
 Vincent Garin

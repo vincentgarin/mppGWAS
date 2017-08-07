@@ -7,7 +7,9 @@
 plot_manhattan(res, ...)
 }
 \arguments{
-\item{res}{result of function \code{SNP_AssTest}.}
+\item{res}{Four column \code{data.frame} with: marker identifier, chromosome,
+position (cM or bp) and -log10(p-value). For example result of function
+\code{AssTest_SNP}.}
 
 \item{...}{Arguments passed on to other plot/points functions}
 }

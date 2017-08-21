@@ -22,9 +22,14 @@ sliding.window.mk <- function(map, hap, gap){
     nb_mk <- dim(map_i)[1]
 
     partition <- rollapply(data = 1:nb_mk, width = hap, by = gap, FUN = function(x) x)
-    # map_plot <- rbind.data.frame(map_plot, map_i[partition[, round(hap/2, 0)],
-    #                                             c(1, 2, 4)],
-    #                             stringsAsFactors = FALSE)
+
+    # if partition is a vector -> 1 column matrix
+
+    if(is.atomic(partition)||is.list(partition)){
+
+      partition <- data.frame(partition)
+
+    }
 
     set.id_i <- rep(1:dim(partition)[1], each = hap)
     set.id_i <- paste0("chr", i, "_", set.id_i)

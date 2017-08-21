@@ -19,6 +19,14 @@ adj.block.mk <- function(map, hap){
     partition <- rollapply(data = 1:nb_mk, width = hap, by = hap,
                            FUN = function(x) x)
 
+    # if partition is a vector -> 1 column matrix
+
+    if(is.atomic(partition)||is.list(partition)){
+
+      partition <- data.frame(partition)
+
+    }
+
     set.id_i <- rep(1:dim(partition)[1], each = hap)
     set.id_i <- paste0("chr", i, "_", set.id_i)
     set.id <- c(set.id, set.id_i)

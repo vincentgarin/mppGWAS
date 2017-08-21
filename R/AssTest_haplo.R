@@ -21,7 +21,10 @@
 #' (LDAK) kinship matrix using the method of Speed et al. (2012) by introducing
 #' the weights computed with the function \code{\link{LDAK_weights}}. The model
 #' can be fitted using the kinship containing all markers or removing
-#' the markers of the scanned chromosome (\code{K_i = TRUE}).
+#' the markers of the scanned chromosome (\code{K_i = TRUE}). In the sitation,
+#' where the markers of the scanned chromosomes are removed (\code{K_i = TRUE}),
+#' if the computation failed for one or several chromosomes, their results
+#' are set to 0 and a warning message is produced at the end of the scan.
 #'
 #' @param haplo.block \code{List} containing the required data to compute an
 #' haplotype model. This object can be obtained using the function
@@ -94,8 +97,8 @@
 
 ############# arguments
 
-# # haplo.block production
-#
+# haplo.block production
+
 # path <- "/home/vincent/Haplo_GRM/EUNAM"
 # setwd(path)
 #
@@ -209,8 +212,8 @@ AssTest_haplo <- function(haplo.block, haplo.term = "fixed", gp, map, trait,
     res <- c()
     n.chr <- length(haplo.block[[2]])
     chr.id <- unique(map[, 2])
-
     mk.sel_temp <- map
+    ind.failed <- c()
 
     for(i in 1:n.chr){
 
@@ -227,15 +230,51 @@ AssTest_haplo <- function(haplo.block, haplo.term = "fixed", gp, map, trait,
       kk.eigen[[1]] <- K
       kk.eigen[[2]] <- eigen(K)
 
-      scan <- magicScan_mod(dataframe = d, gen = haplo.block[[1]][i],
-                            map = haplo.block[[2]][i], kk.eigen = kk.eigen,
-                            nalleles = haplo.block[[3]][i],
-                            model = model)
+      scan <- tryCatch(magicScan_mod(dataframe = d, gen = haplo.block[[1]][i],
+                                     map = haplo.block[[2]][i], kk.eigen = kk.eigen,
+                                     nalleles = haplo.block[[3]][i],
+                                     model = model), error = function(e) NULL)
 
+      if(!is.null(scan)){
 
-      res <- rbind(res, scan[[1]])
+        res <- rbind(res, scan[[1]])
+
+      } else {
+
+        ind.failed <- c(ind.failed, i)
+        map.info <- haplo.block[[2]][[i]][, c(2, 3)]
+        n.pos <- dim(map.info)[1]
+        map.info <- data.frame(1:n.pos, map.info)
+
+        if(haplo.term == "fixed"){
+
+          res_i <- data.frame(map.info, matrix(0, n.pos, 7))
+          colnames(res_i) <- c("Num", "chr", "ccM", "lrt", "lrt.p", "lrt.logp",
+                               "wald", "wald.p", "wald.logp", "sigma2")
+
+        } else if (haplo.term == "random"){
+
+          res_i <- data.frame(map.info, matrix(0, n.pos, 10))
+          colnames(res_i) <- c("Num", "chr", "ccM", "lrt", "lrt.p", "lrt.logp",
+                               "wald", "wald.p", "wald.logp", "tau_k", "sigma2",
+                               "lam_k", "conv")
+
+        }
+
+        res <- rbind(res, res_i)
+
+      }
 
     }
+
+  }
+
+  if(!is.null(ind.failed)){
+
+    mess <- paste("The model computation failed for chromosome(s):",
+                  paste(ind.failed, collapse = ", "))
+
+    warning(mess)
 
   }
 

@@ -65,7 +65,10 @@ By default, the kinship is computed using the method of Astle and Balding
 (LDAK) kinship matrix using the method of Speed et al. (2012) by introducing
 the weights computed with the function \code{\link{LDAK_weights}}. The model
 can be fitted using the kinship containing all markers or removing
-the markers of the scanned chromosome (\code{K_i = TRUE}).
+the markers of the scanned chromosome (\code{K_i = TRUE}). In the sitation,
+where the markers of the scanned chromosomes are removed (\code{K_i = TRUE}),
+if the computation failed for one or several chromosomes, their results
+are set to 0 and a warning message is produced at the end of the scan.
 }
 \references{
 Astle, W., & Balding, D. J. (2009). Population structure and cryptic

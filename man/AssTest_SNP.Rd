@@ -5,7 +5,7 @@
 \title{Single SNP Association Test}
 \usage{
 AssTest_SNP(gp, trait, map, weights = NULL, power = -1, mk.sel = NULL,
-  K_i = TRUE, n.cores = 1)
+  K_i = TRUE)
 }
 \arguments{
 \item{gp}{\code{gpData} object with elements geno coded 0 1 2 and family.}
@@ -32,8 +32,6 @@ of the \code{gp}.}
 
 \item{K_i}{\code{Logical} specifying if the kinship correction should be done
 by removing the markers of the scanned chromosome. Default = TRUE.}
-
-\item{n.cores}{Default = 1.}
 }
 \value{
 Return:
@@ -46,7 +44,7 @@ Perform a single SNP genome wide association test using a kinship matrix
 to correct for the genetic background.
 }
 \details{
-The function is a wrapper for the \code{mmer} function from the \code{sommer}
+The function is a wrapper for the \code{GWAS} function from the \code{sommer}
 package (Covarrubias-Pazaran, 2016). The model is fitted using the EMMA
 algorithm proposed by Kang et al. (2008).
 

@@ -7,7 +7,7 @@
 #' Perform a single SNP genome wide association test using a kinship matrix
 #' to correct for the genetic background.
 #'
-#' The function is a wrapper for the \code{mmer} function from the \code{sommer}
+#' The function is a wrapper for the \code{GWAS} function from the \code{sommer}
 #' package (Covarrubias-Pazaran, 2016). The model is fitted using the EMMA
 #' algorithm proposed by Kang et al. (2008).
 #'
@@ -43,8 +43,6 @@
 #' @param K_i \code{Logical} specifying if the kinship correction should be done
 #' by removing the markers of the scanned chromosome. Default = TRUE.
 #'
-#' @param n.cores Default = 1.
-#'
 #' @return Return:
 #'
 #' \item{results}{Four column data.frame with marker identifier, chromosome,
@@ -69,7 +67,7 @@
 
 
 AssTest_SNP <- function(gp, trait, map, weights = NULL, power = -1,
-                        mk.sel = NULL, K_i = TRUE, n.cores = 1){
+                        mk.sel = NULL, K_i = TRUE){
 
   # check that the list of markers in the map is the same as the list of the
   # genotype matrix
@@ -115,10 +113,9 @@ AssTest_SNP <- function(gp, trait, map, weights = NULL, power = -1,
 
     Z1 <- diag(length(trait))
     ETA <- list( list(Z=Z1, K=K))
-    ans <- mmer(Y = trait, X = X, Z = ETA, W = gp$geno, method = "EMMA",
-                n.cores = n.cores)
+    ans <- GWAS(Y = trait, X = X, Z = ETA, W = gp$geno, method = "EMMA")
 
-    results <- data.frame(map, ans$W.scores$additive[, 1])
+    results <- data.frame(map, ans$W.scores$score)
     colnames(results) <- c("mk.id", "Chrom", "Position", "p.val")
 
   } else { # Remove the kth chromosome for the computation of K.
@@ -152,9 +149,8 @@ AssTest_SNP <- function(gp, trait, map, weights = NULL, power = -1,
 
       Z1 <- diag(length(trait))
       ETA <- list( list(Z=Z1, K=K))
-      ans <- mmer(Y = trait, X = X, Z = ETA, W = geno_i, method = "EMMA",
-                  n.cores = n.cores)
-      p.val <- c(p.val, ans$W.scores$additive[, 1])
+      ans <- GWAS(Y = trait, X = X, Z = ETA, W = geno_i, method = "EMMA")
+      p.val <- c(p.val, ans$W.scores$score)
 
     }
 

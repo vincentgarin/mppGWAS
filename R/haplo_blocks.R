@@ -99,6 +99,15 @@
 haplo_blocks <- function(gp, map, hap = 1, hap.unit = 1, sliding.window = FALSE,
                          gap = 1, LD.based = FALSE, ld.threshold = 0.9){
 
+  # check arguments
+  #################
+
+  if(!(hap.unit %in% c(1, 2))){
+
+    stop("hap.unit should be either 1 for mk position or 2 for cM distance.")
+
+  }
+
   # 1. Make a marker partition
   ############################
 

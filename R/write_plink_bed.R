@@ -2,29 +2,26 @@
 # write_plink_bed #
 ###################
 
-#' Produce plink bed data
-#'
-#'
-#' @param gp \code{gpData} object with elements geno coded 0 1 2 and family
-#'
-#' @param map Four columns \code{data.frame} with chromosome, marker id,
-#' getic position in cM and physical position in bp.
-#'
-#' @param out.dir output directory where the .bed files will be saved.
-#'
-#' @param prefix \code{Character}. Prefix for the plink input file
-#'
-#' @param plink.dir directory where the plink executable program is located.
-#'
-#' @return Return:
-#'
-#' the function save the plink .bed files (.bed, .bim and .fam) in the directory
-#' specified in argument \code{out.dir}
-#'
-#' @author Vincent Garin
-#'
-#' @export
-#'
+# Produce plink bed data
+#
+# @param gp \code{gpData} object with elements geno coded 0 1 2 and family
+#
+# @param map Four columns \code{data.frame} with chromosome, marker id,
+# getic position in cM and physical position in bp.
+#
+# @param out.dir output directory where the .bed files will be saved.
+#
+# @param prefix \code{Character}. Prefix for the plink input file
+#
+# @param plink.dir directory where the plink executable program is located.
+#
+# @return Return:
+#
+# the function save the plink .bed files (.bed, .bim and .fam) in the directory
+# specified in argument \code{out.dir}
+#
+# @author Vincent Garin
+
 
 
 write_plink_bed <- function(gp, map, out.dir, prefix, plink.dir){

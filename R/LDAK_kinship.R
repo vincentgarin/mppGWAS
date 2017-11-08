@@ -2,51 +2,51 @@
 # LDAK_kinship #
 ################
 
-#' Compute linkage desequilibrium adjusted kinship
-#'
-#' Compute linkage disequilibrium adjusted kinship using the program LDAK.
-#' (http://dougspeed.com/ldak/). The function is a wrapper for the LDAK
-#' software.
-#'
-#' @param ldak.dir directory where the ldak executable program is located
-#'
-#' @param weights.loc path to the LDAK weights files (output of function
-#' \code{\link{LDAK_weights}}). For example, /home/.../weights.
-#'
-#' @param bed.file.loc path to the .bed files (output of function
-#' \code{\link{write_plink_bed}}) without .bed extension. For example,
-#' /home/.../my_file.
-#'
-#' @param out.dir output directory where temporary file will be saved.
-#' These files will be removed. Default = getwd().
-#'
-#' @param power \code{Numerical} value specifying the value of the
-#' parameter for marker scores standardization. The column of the marker matrix
-#' (X.j) are multiplied by var(X.j)^(power/2) .Default = -1.
-#'
-#' @param K_i \code{Numerical} value specifying a unique chromosome number that
-#' should be removed from the kinship computation. By default \code{K_i = NULL},
-#' which means that the kinship is computed using all markers.
-#'
-#' @param map If \code{K_i} is not NULL, \code{data.frame} map information with
-#' at least a colum for marker identifier labeled \code{'mk.id'}, and one column
-#' for chromosome indicator labeled \code{'chr'}. \strong{The marker identificer
-#' must be the same as the one of the weight file.}. Default = NULL.
-#'
-#' @return Return:
-#'
-#' \item{K}{kinship matrix computed with the LDAK weights.}
-#'
-#' @author Vincent Garin
-#'
-#' @references
-#'
-#' Speed, D., Hemani, G., Johnson, M. R., & Balding, D. J. (2012).
-#' Improved heritability estimation from genome-wide SNPs. The American Journal
-#' of Human Genetics, 91(6), 1011-1021.
-#'
-#' @export
-#'
+# Compute linkage desequilibrium adjusted kinship
+#
+# Compute linkage disequilibrium adjusted kinship using the program LDAK.
+# (http://dougspeed.com/ldak/). The function is a wrapper for the LDAK
+# software.
+#
+# @param ldak.dir directory where the ldak executable program is located
+#
+# @param weights.loc path to the LDAK weights files (output of function
+# \code{\link{LDAK_weights}}). For example, /home/.../weights.
+#
+# @param bed.file.loc path to the .bed files (output of function
+# \code{\link{write_plink_bed}}) without .bed extension. For example,
+# /home/.../my_file.
+#
+# @param out.dir output directory where temporary file will be saved.
+# These files will be removed. Default = getwd().
+#
+# @param power \code{Numerical} value specifying the value of the
+# parameter for marker scores standardization. The column of the marker matrix
+# (X.j) are multiplied by var(X.j)^(power/2) .Default = -1.
+#
+# @param K_i \code{Numerical} value specifying a unique chromosome number that
+# should be removed from the kinship computation. By default \code{K_i = NULL},
+# which means that the kinship is computed using all markers.
+#
+# @param map If \code{K_i} is not NULL, \code{data.frame} map information with
+# at least a colum for marker identifier labeled \code{'mk.id'}, and one column
+# for chromosome indicator labeled \code{'chr'}. \strong{The marker identificer
+# must be the same as the one of the weight file.}. Default = NULL.
+#
+# @return Return:
+#
+# \item{K}{kinship matrix computed with the LDAK weights.}
+#
+# @author Vincent Garin
+#
+# @references
+#
+# Speed, D., Hemani, G., Johnson, M. R., & Balding, D. J. (2012).
+# Improved heritability estimation from genome-wide SNPs. The American Journal
+# of Human Genetics, 91(6), 1011-1021.
+#
+# @export
+#
 
 # ldak.dir <- "/home/vincent/Haplo_GRM/software/LDAK"
 # weights.loc <- "/home/vincent/Haplo_GRM/EUNAM/data/geno/LDAK_test/Test_LDAK_weights"

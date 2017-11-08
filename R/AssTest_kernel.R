@@ -16,7 +16,7 @@
 #' choose sliding window it is also possible to define the number of marker
 #' between the two centers of a window using \code{gap}.
 #'
-#' The genome scan is based on the sequence kernel association test (SAKT)
+#' The genome scan is based on the sequence kernel association test (SKAT)
 #' proposed by Wu et al. (2011) calling the SKAT package. This means that the
 #' function determines the genetic relatedness between lines using a set of
 #' markers and a kernel function. The variance covariance structure determined
@@ -81,7 +81,7 @@
 #' @param power \code{Numerical} value specifying the value of the
 #' parameter for marker scores standardization. The column of the marker matrix
 #' (X.j) are multiplied by var(X.j)^(power/2). It correspond to alpha in the
-#' formula .Default = -1.
+#' formula. Default = -1.
 #'
 #'
 #' @return Return:

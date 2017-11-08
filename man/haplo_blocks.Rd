@@ -10,8 +10,8 @@ haplo_blocks(gp, map, hap = 1, hap.unit = 1, sliding.window = FALSE,
 \arguments{
 \item{gp}{\code{gpData} object with elements geno coded 0 1 2.}
 
-\item{map}{Four columns \code{data.frame} with marker id, chromosome,
-getic position in cM and physical position in bp.}
+\item{map}{Four columns \code{data.frame} with \code{character} marker id,
+chromosome, getic position in cM and physical position in bp.}
 
 \item{hap}{Defines either a number of markers (if \code{hap.unit=1}) or a
 genetic distance in cM (if \code{hap.unit=2}) that should be used for building

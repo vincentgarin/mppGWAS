@@ -11,8 +11,8 @@
 #'
 #' @param gp \code{gpData} object with elements geno coded 0 1 2.
 #'
-#' @param map Four columns \code{data.frame} with marker id, chromosome,
-#' getic position in cM and physical position in bp.
+#' @param map Four columns \code{data.frame} with \code{character} marker id,
+#' chromosome, getic position in cM and physical position in bp.
 #'
 #' @param hap Defines either a number of markers (if \code{hap.unit=1}) or a
 #' genetic distance in cM (if \code{hap.unit=2}) that should be used for building
@@ -105,6 +105,12 @@ haplo_blocks <- function(gp, map, hap = 1, hap.unit = 1, sliding.window = FALSE,
   if(!(hap.unit %in% c(1, 2))){
 
     stop("hap.unit should be either 1 for mk position or 2 for cM distance.")
+
+  }
+
+  if(!is.character(map[, 1])){
+
+    stop("The map marker id are not in characters")
 
   }
 
@@ -212,6 +218,6 @@ haplo_blocks <- function(gp, map, hap = 1, hap.unit = 1, sliding.window = FALSE,
 
   }
 
-  return(list(gen, map.hp, nalleles))
+  return(list(gen = gen, map = map.hp, nalleles = nalleles))
 
 }

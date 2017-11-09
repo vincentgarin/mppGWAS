@@ -8,12 +8,14 @@ Description: Peform QTL analyses in multi-parent populations (MPPs) using GWAS m
 License: GPL (>=2)
 Imports:
     data.table,
+    doParallel,
+    foreach,
     qqman,
     sommer,
     SKAT,
-    zoo,
-    utils, 
-    stats
+    stats,
+    utils,
+    zoo
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
 Encoding: UTF-8

@@ -21,21 +21,19 @@
 #' @param gp \code{gpData} object with elements geno coded 0 1 2, map with
 #' marker position in cM, phenotype and family indicator.
 #'
-#' @param trait \code{Numerical}... . Default = 1.
+#' @param trait \code{Numerical} or \code{character} indicator to specify which
+#' trait of the gp object should be used. Default = 1.
 #'
-#' @param map Three columns \code{data.frame} with marker identifier,
-#' chromosome, and marker position (cM or bp).
-#'
-#' @param weights Two columns \code{data.frame} containing the marker
-#' identifiers and the weights marker weights. For example the weights obtained
-#' with the LDAK program (see \code{\link{LDAK_weights}}). By default, the
-#' kinship matrix is computed unweighted or all weights are equal to 1, which
-#' correspond to the Astle and Balding kinship matrix
+#' @param weights object of class \code{LD_wgh} obtained by the function
+#' LDAK_weights() representing a data.frame with two columns: the marker
+#' identifier and the LD adjusted weights. These weight will be used to compute
+#' a LDAK as defined by Speed et al. (2012) for the genetic background
+#' adjustement. Default = NULL.
 #'
 #' @param power \code{Numerical} value specifying the value of the
 #' parameter for marker scores standardization. The column of the marker matrix
 #' (X.j) are multiplied by var(X.j)^(power/2). It correspond to alpha in the
-#' formula .Default = -1.
+#' formula. Default = -1.
 #'
 #' @param mk.sel \code{Character vector} specifying a list of marker to use
 #' for the kinship matrix computation. By default, the function use all markers
@@ -44,10 +42,17 @@
 #' @param K_i \code{Logical} specifying if the kinship correction should be done
 #' by removing the markers of the scanned chromosome. Default = TRUE.
 #'
+#' @param n.cores \code{Numeric} value indicating the number of core to be used
+#' if the user want to run the K-i (\code{K_i = TRUE}) scan in parallel.
+#' Default = NULL.
+#'
+#' @param verbose \code{Logical} indicating if function outputs should be printed.
+#' Default = FALSE.
+#'
 #' @return Return:
 #'
-#' \item{results}{Four column data.frame with marker identifier, chromosome,
-#' position and -log10(p-value).}
+#' \item{G.res}{Object of class \code{G_res} representing a data.frame with four
+#' columns: marker identifier, chromosome, position in cM and -log10(p-value).}
 #'
 #' @author Vincent Garin
 #'
@@ -59,6 +64,10 @@
 #' Covarrubias-Pazaran G. 2016. Genome assisted prediction of quantitative traits
 #' using the R package sommer. PLoSONE 11(6):1-15.
 #'
+#' Kang, H. M., Zaitlen, N. A., Wade, C. M., Kirby, A., Heckerman, D., Daly,
+#' M. J., & Eskin, E. (2008). Efficient control of population structure in model
+#' organism association mapping. Genetics, 178(3), 1709-1723.
+#'
 #' Speed, D., Hemani, G., Johnson, M. R., & Balding, D. J. (2012).
 #' Improved heritability estimation from genome-wide SNPs. The American Journal
 #' of Human Genetics, 91(6), 1011-1021.
@@ -68,37 +77,35 @@
 
 # arguments
 
-data("EUNAM_gp")
-data("EUNAM_LD_weights")
-
-gp <- EUNAM_gp
-trait <- 1
-weights <- EUNAM_LD_weights
-
-############ stop there modification of the GWAS SNP function:
-
-# check gpData format
-
-# check the weights format
-
-# connect with new gpData object
-
-# think about adding loop in parallel.
-
-# silence the printing.
+# source('~/Haplo_GRM/mppGWAS/R/test_class.R')
+# source('~/Haplo_GRM/mppGWAS/R/test_gpData_content.R')
+#
+# data("EUNAM_gp")
+# data("EUNAM_LD_weights")
+#
+# gp <- EUNAM_gp
+# trait <- 1
+# weights <- EUNAM_LD_weights
+# power = -1
+# mk.sel = NULL
+# K_i = TRUE
+# verbose = FALSE
 
 
-GWAS_SNP <- function(gp, trait, weights = NULL, power = -1, mk.sel = NULL,
-                     K_i = TRUE){
+GWAS_SNP <- function(gp, trait = 1, weights = NULL, power = -1, mk.sel = NULL,
+                     K_i = TRUE, n.cores = NULL, verbose = FALSE){
 
-  # check that the list of markers in the map is the same as the list of the
-  # genotype matrix
+  # test gpData and his content
 
-  if(!identical(colnames(gp$geno), map[, 1])){
+  test_gpData_content(gp)
 
-  stop(paste("The list of marker in the genotype matrix of the gpData object",
-             "and in the map are not stricly equivalent",
-             "(same content, same order)."))
+  if(!is.null(weights)){
+
+    if(!is_LD_wgh(weights)){
+
+      stop("The LD weights are not of class LD_wgh obtained with LDAK_weights().")
+
+    }
 
   }
 
@@ -114,6 +121,11 @@ GWAS_SNP <- function(gp, trait, weights = NULL, power = -1, mk.sel = NULL,
     }
   }
 
+  # reconstruct the map
+
+  map <- data.frame(rownames(gp$map), gp$map, stringsAsFactors = FALSE)
+  colnames(map) <- c("mk.id", "chr", "cM")
+
   # check that the selection of marker is present in the map
 
   if( sum(!(mk.sel %in% map[, 1])) !=0 ){
@@ -125,7 +137,52 @@ GWAS_SNP <- function(gp, trait, weights = NULL, power = -1, mk.sel = NULL,
 
   }
 
+  # check the value of trait
+
+  if(!(is.character(trait) || is.numeric(trait))){
+
+    stop("The trait object must be either numeric or character")
+
+  }
+
+  if(is.numeric(trait)){
+
+  nb.trait <- dim(gp$pheno)[3]
+
+  if(!((0 < trait) && (trait <=nb.trait))){
+
+    stop(paste("The trait indicator should be between 1 and", nb.trait,
+               "the total number of traits in the gp object"))
+
+  }
+
+  }
+
+  if(is.character(trait)){
+
+    trait.names <- attr(gp$pheno, "dimnames")[[2]]
+
+    if (!(trait %in% trait.names)){
+
+    stop(paste("trait must be one of:", trait.names))
+
+    }
+
+  }
+
   ############ end checks
+
+  # select the trait
+
+  if(is.numeric(trait)){
+
+    pheno <- gp$pheno[, 1, trait]
+
+  } else {
+
+    pheno <- gp$pheno[, 1, which(trait %in% trait.names)]
+
+  }
 
   X <- IncMat_cross(gp$covar$family)
 
@@ -133,12 +190,14 @@ GWAS_SNP <- function(gp, trait, weights = NULL, power = -1, mk.sel = NULL,
 
     K <- mpp_kinship(gp = gp, weights = weights, power = power, mk.sel = mk.sel)
 
-    Z1 <- diag(length(trait))
+    Z1 <- diag(length(pheno))
     ETA <- list( list(Z=Z1, K=K))
-    ans <- GWAS(Y = trait, X = X, Z = ETA, W = gp$geno, method = "EMMA")
+    ans <- sommer::GWAS(Y = pheno, X = X, Z = ETA, W = gp$geno, method = "EMMA",
+                silent = !verbose, gwas.plots = FALSE)
 
-    results <- data.frame(map, ans$W.scores$score)
-    colnames(results) <- c("mk.id", "Chrom", "Position", "p.val")
+    G.res <- data.frame(map, ans$W.scores$score[1, ], stringsAsFactors = FALSE)
+    colnames(G.res) <- c("mk.id", "Chrom", "Position", "p.val")
+    class(G.res) <- c("data.frame", "G_res")
 
   } else { # Remove the kth chromosome for the computation of K.
 
@@ -154,33 +213,56 @@ GWAS_SNP <- function(gp, trait, weights = NULL, power = -1, mk.sel = NULL,
 
     } else { mk.sel_temp <- map }
 
-    for(i in 1:n.chr){
+    # Execution of the K-i scan in parallel
 
-      mk_chr_i <- map[map[, 2] == chr.id[i], 1]
+    if(!is.null(n.cores)){
 
-      # adapt the list of selected markers
+      cl <- makeCluster(n.cores)
+      registerDoParallel(cl)
 
-    mk.sel_i <- mk.sel_temp[mk.sel_temp[, 2] != chr.id[i], 1]
+      res <- foreach(i=1:n.chr) %dopar% {
 
-     # obtain a reduced genotype matrix
+        GWAS_SNP_i(i = i, chr.id = chr.id, gp = gp, X = X, pheno = pheno, map = map,
+                   mk.sel_temp = mk.sel_temp, weights = weights, power = power)
 
-      geno_i <- gp$geno[, colnames(gp$geno) %in% mk_chr_i]
+      }
 
-      K <- mpp_kinship(gp = gp, weights = weights, power = power,
-                       mk.sel = mk.sel_i)
+      stopCluster(cl)
 
-      Z1 <- diag(length(trait))
-      ETA <- list( list(Z=Z1, K=K))
-      ans <- GWAS(Y = trait, X = X, Z = ETA, W = geno_i, method = "EMMA")
-      p.val <- c(p.val, ans$W.scores$score)
+      p.val <- unlist(res)
+
+    } else { # or execution of the chromosome scan in a regular for loop
+
+      for(i in 1:n.chr){
+
+        mk_chr_i <- map[map[, 2] == chr.id[i], 1]
+
+        # adapt the list of selected markers
+
+        mk.sel_i <- mk.sel_temp[mk.sel_temp[, 2] != chr.id[i], 1]
+
+        # obtain a reduced genotype matrix
+
+        geno_i <- gp$geno[, colnames(gp$geno) %in% mk_chr_i]
+
+        K <- mpp_kinship(gp = gp, weights = weights, power = power,
+                         mk.sel = mk.sel_i)
+
+        Z1 <- diag(length(pheno))
+        ETA <- list( list(Z=Z1, K=K))
+        ans <- sommer::GWAS(Y = pheno, X = X, Z = ETA, W = geno_i, method = "EMMA",
+                    silent = !verbose, gwas.plots = FALSE)
+        p.val <- c(p.val, ans$W.scores$score[1, ])
+
+      }
 
     }
 
-    results <- data.frame(map, p.val)
-    colnames(results) <- c("mk.id", "Chrom", "Position", "p.val")
+    G.res <- data.frame(map, p.val)
+    colnames(G.res) <- c("mk.id", "Chrom", "Position", "p.val")
 
   }
 
-  return(results)
+  return(G.res)
 
 }

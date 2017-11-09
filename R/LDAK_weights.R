@@ -24,6 +24,7 @@
 #' @param ldak.dir directory where the ldak executable program is located
 #'
 #' @param verbose \code{Logical} indicating if function outputs should be printed.
+#' Default = FALSE
 #'
 #' @return Return:
 #'
@@ -42,13 +43,6 @@
 #' @export
 #'
 
-# plink.dir = "/home/vincent/Haplo_GRM/software/PLINK"
-# ldak.dir <- "/home/vincent/Haplo_GRM/software/LDAK"
-# gp = gp
-# out.dir = getwd()
-# bp.pos <- EUNAM_map[, 4]
-# verbose = FALSE
-
 
 LDAK_weights <- function(gp, bp.pos, out.dir, plink.dir, ldak.dir,
                          verbose = FALSE){
@@ -58,6 +52,7 @@ LDAK_weights <- function(gp, bp.pos, out.dir, plink.dir, ldak.dir,
   test_gpData_content(gp)
 
   # reform the map
+
   map <- data.frame(rownames(gp$map), gp$map, bp.pos, stringsAsFactors = FALSE)
   colnames(map) <- c("mk.id", "chr", "cM", "bp")
 

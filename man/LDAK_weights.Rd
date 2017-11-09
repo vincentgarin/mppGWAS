@@ -7,8 +7,8 @@
 LDAK_weights(gp, bp.pos, out.dir, plink.dir, ldak.dir, verbose = FALSE)
 }
 \arguments{
-\item{gp}{\code{gpData} object with elements geno coded 0 1 2, family and
-map with position in cM.}
+\item{gp}{\code{gpData} object with elements geno coded 0 1 2, map with
+marker position in cM, phenotype and family indicator.}
 
 \item{bp.pos}{\code{Numeric vector} of marker physical base pair positions.}
 
@@ -19,7 +19,8 @@ Defaut = working directory.}
 
 \item{ldak.dir}{directory where the ldak executable program is located}
 
-\item{verbose}{\code{Logical} indicating if function outputs should be printed.}
+\item{verbose}{\code{Logical} indicating if function outputs should be printed.
+Default = FALSE}
 }
 \value{
 Return:

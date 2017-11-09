@@ -1,6 +1,6 @@
-#################
-# AssTest_haplo #
-#################
+##############
+# GWAS_haplo #
+##############
 
 #' Haplotype Association Test
 #'
@@ -124,13 +124,13 @@
 # power = -1
 # K_i = FALSE
 #
-# source('~/Haplo_GRM/mppAssTest/R/magicScan_mod.R')
-# source('~/Haplo_GRM/mppAssTest/R/mixedPar.R')
-# source('~/Haplo_GRM/mppAssTest/R/cal.xx.R')
-# source('~/Haplo_GRM/mppAssTest/R/Fpoly_mod.R')
-# source('~/Haplo_GRM/mppAssTest/R/Rpoly_mod.R')
+# source('~/Haplo_GRM/mppGWAS/R/magicScan_mod.R')
+# source('~/Haplo_GRM/mppGWAS/R/mixedPar.R')
+# source('~/Haplo_GRM/mppGWAS/R/cal.xx.R')
+# source('~/Haplo_GRM/mppGWAS/R/Fpoly_mod.R')
+# source('~/Haplo_GRM/mppGWAS/R/Rpoly_mod.R')
 
-AssTest_haplo <- function(haplo.block, haplo.term = "fixed", gp, map, trait,
+GWAS_haplo <- function(haplo.block, haplo.term = "fixed", gp, map, trait,
                           weights = NULL, power = -1, K_i = TRUE){
 
   # 1. Checks

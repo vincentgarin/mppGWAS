@@ -15,6 +15,9 @@
 #
 # @param plink.dir directory where the plink executable program is located.
 #
+# @param verbose logical argument indicating if function outputs should be printed.
+# Default = TRUE.
+#
 # @return Return:
 #
 # the function save the plink .bed files (.bed, .bim and .fam) in the directory
@@ -24,7 +27,7 @@
 
 
 
-write_plink_bed <- function(gp, map, out.dir, prefix, plink.dir){
+write_plink_bed <- function(gp, map, out.dir, prefix, plink.dir, verbose = TRUE){
 
   geno <- gp$geno
 
@@ -71,7 +74,7 @@ write_plink_bed <- function(gp, map, out.dir, prefix, plink.dir){
   cmd1 <- paste(soft.cmd, "--file", file.loc, "--make-bed --out", file.loc,
                 "--noweb")
 
-  system(cmd1)
+  system(cmd1, intern = !verbose)
 
   # remove the .ped amd .map files
 

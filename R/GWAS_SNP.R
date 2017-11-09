@@ -1,8 +1,8 @@
-###############
-# AssTest_SNP #
-###############
+############
+# GWAS_SNP #
+############
 
-#' Single SNP Association Test
+#' Single SNP GWAS
 #'
 #' Perform a single SNP genome wide association test using a kinship matrix
 #' to correct for the genetic background.
@@ -18,9 +18,10 @@
 #' The model can be fitted using the kinship containing all markers or removing
 #' the markers of the scanned chromosome (\code{K_i = TRUE}).
 #'
-#' @param gp \code{gpData} object with elements geno coded 0 1 2 and family.
+#' @param gp \code{gpData} object with elements geno coded 0 1 2, map with
+#' marker position in cM, phenotype and family indicator.
 #'
-#' @param trait \code{Numerical} vector of phenotypic trait values.
+#' @param trait \code{Numerical}... . Default = 1.
 #'
 #' @param map Three columns \code{data.frame} with marker identifier,
 #' chromosome, and marker position (cM or bp).
@@ -65,9 +66,30 @@
 #' @export
 #'
 
+# arguments
 
-AssTest_SNP <- function(gp, trait, map, weights = NULL, power = -1,
-                        mk.sel = NULL, K_i = TRUE){
+data("EUNAM_gp")
+data("EUNAM_LD_weights")
+
+gp <- EUNAM_gp
+trait <- 1
+weights <- EUNAM_LD_weights
+
+############ stop there modification of the GWAS SNP function:
+
+# check gpData format
+
+# check the weights format
+
+# connect with new gpData object
+
+# think about adding loop in parallel.
+
+# silence the printing.
+
+
+GWAS_SNP <- function(gp, trait, weights = NULL, power = -1, mk.sel = NULL,
+                     K_i = TRUE){
 
   # check that the list of markers in the map is the same as the list of the
   # genotype matrix

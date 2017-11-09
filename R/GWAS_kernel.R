@@ -1,6 +1,6 @@
-##################
-# AssTest_kernel #
-##################
+############
+# GWAS_GSM #
+############
 
 #' Kernel Association Test
 #'
@@ -124,7 +124,7 @@
 # power = -1
 # K_i = TRUE
 
-AssTest_kernel <- function(SSD_file, gp, map, trait, kernel = "linear",
+GWAS_GSM <- function(SSD_file, gp, map, trait, kernel = "linear",
                            weights.beta = c(1, 25), weights.kernel = NULL,
                            kin.correct = TRUE, K_i = TRUE, weights = NULL,
                            power = -1){

@@ -4,38 +4,37 @@
 \alias{LDAK_weights}
 \title{Compute Linkage disequilibrium markers weights}
 \usage{
-LDAK_weights(gp, map, out.dir, prefix, plink.dir, ldak.dir, kinship = FALSE)
+LDAK_weights(gp, bp.pos, out.dir, plink.dir, ldak.dir, verbose = FALSE)
 }
 \arguments{
-\item{gp}{\code{gpData} object with elements geno coded 0 1 2 and family}
+\item{gp}{\code{gpData} object with elements geno coded 0 1 2, family and
+map with position in cM.}
 
-\item{map}{Four columns \code{data.frame} with chromosome, marker id,
-getic position in cM and physical position in bp. with column names being
-"mk.id", "chr", "cM", "bp".}
+\item{bp.pos}{\code{Numeric vector} of marker physical base pair positions.}
 
-\item{out.dir}{output directory where the ldak weights will be stored}
-
-\item{prefix}{\code{Character}. Prefix for the plink input file}
+\item{out.dir}{output directory where the ldak weights will be stored.
+Defaut = working directory.}
 
 \item{plink.dir}{directory where the plink executable program is located.}
 
 \item{ldak.dir}{directory where the ldak executable program is located}
 
-\item{kinship}{\code{Logical} value specifying if the kinshi matrix should be
-returned. Default = FALSE.}
+\item{verbose}{\code{Logical} indicating if function outputs should be printed.}
 }
 \value{
 Return:
 
-the function save the LDAK weights in the directory specified in argument
-\code{out.dir}.
-
-If \code{kinship = TRUE}, kinship matrix computed with the LDAK weights.
+An object of class \code{LD_wgh} which is a \code{data.frame} with two columns
+containing: the marker identifier and the computed LDAK weight.
 }
 \description{
 Compute linkage disequilibrium weights using the program LDAK.
-(http://dougspeed.com/ldak/). The function is a wrapper for the LDAK
-software.
+The function is a wrapper for the LDAK software.
+}
+\details{
+This function use the LDAK 5 beta executable file that can be download here:
+http://dougspeed.com/ldak/ and the plink executable file that can be downloaded
+here: http://zzz.bwh.harvard.edu/plink/download.shtml.
 }
 \references{
 Speed, D., Hemani, G., Johnson, M. R., & Balding, D. J. (2012).

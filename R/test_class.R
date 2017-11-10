@@ -10,8 +10,18 @@ is_gpData <- function(x){
 
 }
 
+# LD_wgh
+
 is_LD_wgh <- function(x){
 
   inherits(x = x, what = "LD_wgh")
+
+}
+
+# hap_bl
+
+is_hap_bl <- function(x){
+
+  inherits(x = x, what = "hap_bl")
 
 }

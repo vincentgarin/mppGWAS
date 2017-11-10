@@ -26,29 +26,29 @@
 #' if the computation failed for one or several chromosomes, their results
 #' are set to 0 and a warning message is produced at the end of the scan.
 #'
-#' @param haplo.block \code{List} containing the required data to compute an
-#' haplotype model. This object can be obtained using the function
-#' \code{\link{haplo_blocks}}.
+#' @param haplo.block Object of class \code{hap_bl} obtained with the function
+#' \code{\link{haplo_blocks}} containing the haplotype matrices necessary to
+#' compute the haplotype model.
 #'
 #' @param haplo.term \code{Character} variable indicating if the haplotype term
 #' should be computed as fixed ("fixed") or random ("random").
 #' Default = "fixed".
 #'
-#' @param gp \code{gpData} object with elements geno coded 0 1 2 and family
-#' \strong{containing the list of markers that will be used to compute the
-#' kinship matrix}
+#' @param gp \code{gpData} object with elements geno coded 0 1 2, map with
+#' marker position in cM, phenotype and family. \strong{
+#' The object contain the list of markers that will be used to compute the
+#' kinship matrix}.
 #'
-#' @param map Three columns \code{data.frame} corresponding to the list of
-#' markers present in \code{gp}. The three columns represent the marker
-#' identifier, the chromosome, and the marker position (cM or bp).
+#' @param trait \code{Numerical} or \code{character} indicator to specify which
+#' trait of the gp object should be used. Default = 1.
 #'
-#' @param trait \code{Numerical} vector of phenotypic trait values.
-#'
-#' @param weights Two columns \code{data.frame} containing the marker
-#' identifiers and the weights marker weights. For example the weights obtained
-#' with the LDAK program (see \code{\link{LDAK_weights}}). By default, the
-#' kinship matrix is computed unweighted or all weights are equal to 1, which
-#' correspond to the Astle and Balding kinship matrix
+#' @param weights object of class \code{LD_wgh} obtained by the function
+#' LDAK_weights() representing a data.frame with two columns: the marker
+#' identifier and the LD adjusted weights. These weight will be used to compute
+#' a LDAK as defined by Speed et al. (2012) for the genetic background
+#' adjustement. Default = NULL. By default, the kinship matrix is computed
+#' unweighted or all weights are equal to 1, which correspond to the Astle and
+#' Balding kinship matrix.
 #'
 #' @param power \code{Numerical} value specifying the value of the
 #' parameter for marker scores standardization. The column of the marker matrix
@@ -58,11 +58,19 @@
 #' @param K_i \code{Logical} specifying if the kinship correction should be done
 #' by removing the markers of the scanned chromosome. Default = TRUE.
 #'
+#' @param n.cores \code{Numeric} value indicating the number of core to be used
+#' if the user want to run the K-i (\code{K_i = TRUE}) scan in parallel.
+#' Default = NULL.
+#'
+#' @param verbose \code{Logical} indicating if function outputs should be printed.
+#' Default = FALSE.
+#'
 #'
 #' @return Return:
 #'
-#' \item{res}{Data.frame with in row the haplotype blocks and in column the
-#' LRT and Wald statistics of each haplotype blocks.}
+#' \item{G.res}{Object of class \code{G_res} representing a data.frame with four
+#' columns: marker identifier, chromosome, position in cM and -log10(p-value).}
+#'
 #'
 #' @author Vincent Garin, Julong Wei and Shizhong Xu
 #' (original underlying functions)
@@ -99,23 +107,6 @@
 
 # haplo.block production
 
-# path <- "/home/vincent/Haplo_GRM/EUNAM"
-# setwd(path)
-#
-# # genotypic data
-#
-# load("./data/geno/geno_gp_imp.RData")
-#
-# # map
-#
-# map <- read.table("./data/map/map_imp.txt", h = TRUE, stringsAsFactors = FALSE)
-# map <- map[, c(1, 3, 4, 6)]
-# colnames(map) <- c("mk.id", "chr", "cM", "bp")
-#
-# pheno <- read.csv("./data/pheno/Adj_means.csv", row.names = 1)
-#
-# hp.block <- haplo_blocks(gp = gp.imp, map = map, hap = 3, hap.unit = 1)
-#
 # haplo.term <- "fixed"
 # trait <- pheno[, 1]
 # gp <- gp.imp
@@ -130,59 +121,69 @@
 # source('~/Haplo_GRM/mppGWAS/R/Fpoly_mod.R')
 # source('~/Haplo_GRM/mppGWAS/R/Rpoly_mod.R')
 
-GWAS_haplo <- function(haplo.block, haplo.term = "fixed", gp, map, trait,
-                          weights = NULL, power = -1, K_i = TRUE){
+GWAS_haplo <- function(haplo.block, haplo.term = "fixed", gp, trait = 1,
+                       weights = NULL, power = -1, K_i = TRUE, n.cores = NULL,
+                       verbose = FALSE){
 
   # 1. Checks
   ###########
 
-  # check that the list of haplotype in  haplo.map is the same as the list of the
-  # haplotypes in haplo.geno
+  # test haplo.block
 
-  # if(!identical(rownames(haplo.geno), haplo.map[, 1])){
-  #
-  #   stop(paste("The list of marker in the haplotype matrix (haplo.geno) ",
-  #              "and in the haplotype map (haplo.map) are not stricly equivalent",
-  #              "(same content, same order)."))
-  #
-  # }
+  if(!is_hap_bl(haplo.block)){
 
-  # check that the list of markers in the map is the same as the list of the
-  # genotype matrix of the gp object
-
-  if(!identical(colnames(gp$geno), map[, 1])){
-
-    stop(paste("The list of marker in the gp object ",
-               "and in the map are not stricly equivalent",
-               "(same content, same order)."))
+    stop(paste("The haplo.block object is not of class hap_bl. Such an object",
+               "can be obtained with the function haplo_blocks()"))
 
   }
 
-  # check that there is a weight for each marker if weights are given
+  # test haplo.term
 
-  if(!is.null(weights)){
+  if (!(haplo.term %in% c("fixed", "random"))){
 
-    if(!(sum(colnames(gp$geno) %in% weights[, 1]) == dim(gp$geno)[2])){
+    stop("haplo.term must be 'fixed' or 'random'.")
 
-      stop(paste("The weight argument does not contain a value for each marker",
-                 "in the gpData object (gp)."))
-
-    }
   }
 
-  ######################### end checks
+  # check gp, trait and weights
+
+  check_gpData(gp)
+
+  check_weights(weights = weights, gp = gp)
+
+  check_trait(trait = trait, gp = gp)
+
+  ######## end checks
 
   # 2. Process the data for the magicScan_mod function
   ####################################################
+
+  # map
+
+  map <- data.frame(rownames(gp$map), gp$map, stringsAsFactors = FALSE)
+  colnames(map) <- c("mk.id", "chr", "cM")
+
+  # pheno
+
+  if(is.numeric(trait)){
+
+    pheno <- gp$pheno[, 1, trait]
+
+  } else {
+
+    pheno <- gp$pheno[, 1, which(trait %in% trait.names)]
+
+  }
 
   if(haplo.term == "random"){model <- "Random-A"
   } else if (haplo.term == "fixed")  {model <- "Fixed-A"}
 
   # 2.1 datafram
 
-  d <- data.frame(trait, IncMat_cross(gp$covar$family))
+  d <- data.frame(pheno, IncMat_cross(gp$covar$family))
   colnames(d) <- c("trait", paste("cr", 1:(dim(d)[2] - 1)) )
 
+  ################### stop there: parallel, classed object
 
   # 3. Model computation
   ######################
@@ -199,7 +200,8 @@ GWAS_haplo <- function(haplo.block, haplo.term = "fixed", gp, map, trait,
 
     scan <- magicScan_mod(dataframe = d, gen = haplo.block[[1]],
                           map = haplo.block[[2]], kk.eigen = kk.eigen,
-                          nalleles = haplo.block[[3]], model = model)
+                          nalleles = haplo.block[[3]], model = model,
+                          verbose = verbose)
 
     res <- lapply(1:length(haplo.block[[2]]), function(i){ return(scan[[i]]) })
     res <- do.call(rbind, res)
@@ -215,69 +217,114 @@ GWAS_haplo <- function(haplo.block, haplo.term = "fixed", gp, map, trait,
     mk.sel_temp <- map
     ind.failed <- c()
 
-    for(i in 1:n.chr){
 
-      mk_chr_i <- map[map[, 2] == chr.id[i], 1]
+    if(!is.null(n.cores)){
 
-      # adapt the list of selected markers
+      cl <- makeCluster(n.cores)
+      registerDoParallel(cl)
 
-      mk.sel_i <- mk.sel_temp[mk.sel_temp[, 2] != chr.id[i], 1]
+      res <- foreach(i=1:n.chr) %dopar% {
 
-      K <- mpp_kinship(gp = gp, weights = weights, power = power,
-                       mk.sel = mk.sel_i)
+        GWAS_haplo_i(i = i, chr.id = chr.id, map = map, mk.sel_temp = mk.sel_temp,
+                     gp = gp, weights = weights, power = power, d = d,
+                     haplo.block = haplo.block, model = model, verbose = verbose)
 
-      kk.eigen <- list()
-      kk.eigen[[1]] <- K
-      kk.eigen[[2]] <- eigen(K)
+      }
 
-      scan <- tryCatch(magicScan_mod(dataframe = d, gen = haplo.block[[1]][i],
-                                     map = haplo.block[[2]][i], kk.eigen = kk.eigen,
-                                     nalleles = haplo.block[[3]][i],
-                                     model = model), error = function(e) NULL)
+      stopCluster(cl)
 
-      if(!is.null(scan)){
+      ind.failed <- unlist(lapply(X = res, FUN = function(x) x[[2]]))
+      res <- lapply(X = res, FUN = function(x) x[[1]])
+      res <- do.call(what = rbind, res)
 
-        res <- rbind(res, scan[[1]])
+    } else {
 
-      } else {
+      # regular execution of K-i
 
-        ind.failed <- c(ind.failed, i)
-        map.info <- haplo.block[[2]][[i]][, c(2, 3)]
-        n.pos <- dim(map.info)[1]
-        map.info <- data.frame(1:n.pos, map.info)
+      for(i in 1:n.chr){
 
-        if(haplo.term == "fixed"){
+        mk_chr_i <- map[map[, 2] == chr.id[i], 1]
 
-          res_i <- data.frame(map.info, matrix(0, n.pos, 7))
-          colnames(res_i) <- c("Num", "chr", "ccM", "lrt", "lrt.p", "lrt.logp",
-                               "wald", "wald.p", "wald.logp", "sigma2")
+        # adapt the list of selected markers
 
-        } else if (haplo.term == "random"){
+        mk.sel_i <- mk.sel_temp[mk.sel_temp[, 2] != chr.id[i], 1]
 
-          res_i <- data.frame(map.info, matrix(0, n.pos, 10))
-          colnames(res_i) <- c("Num", "chr", "ccM", "lrt", "lrt.p", "lrt.logp",
-                               "wald", "wald.p", "wald.logp", "tau_k", "sigma2",
-                               "lam_k", "conv")
+        K <- mpp_kinship(gp = gp, weights = weights, power = power,
+                         mk.sel = mk.sel_i)
+
+        kk.eigen <- list()
+        kk.eigen[[1]] <- K
+        kk.eigen[[2]] <- eigen(K)
+
+        scan <- tryCatch(magicScan_mod(dataframe = d, gen = haplo.block[[1]][i],
+                                       map = haplo.block[[2]][i], kk.eigen = kk.eigen,
+                                       nalleles = haplo.block[[3]][i],
+                                       model = model, verbose = verbose),
+                         error = function(e) NULL)
+
+        if(!is.null(scan)){
+
+          res <- rbind(res, scan[[1]])
+          ind.failed <- c(ind.failed, NULL)
+
+        } else {
+
+          ind.failed <- c(ind.failed, i)
+          map.info <- haplo.block[[2]][[i]][, c(2, 3)]
+          n.pos <- dim(map.info)[1]
+          map.info <- data.frame(1:n.pos, map.info)
+
+          if(haplo.term == "fixed"){
+
+            res_i <- data.frame(map.info, matrix(0, n.pos, 7))
+            colnames(res_i) <- c("Num", "chr", "ccM", "lrt", "lrt.p", "lrt.logp",
+                                 "wald", "wald.p", "wald.logp", "sigma2")
+
+          } else if (haplo.term == "random"){
+
+            res_i <- data.frame(map.info, matrix(0, n.pos, 10))
+            colnames(res_i) <- c("Num", "chr", "ccM", "lrt", "lrt.p", "lrt.logp",
+                                 "wald", "wald.p", "wald.logp", "tau_k", "sigma2",
+                                 "lam_k", "conv")
+
+          }
+
+          res <- rbind(res, res_i)
 
         }
-
-        res <- rbind(res, res_i)
 
       }
 
     }
 
+    if(!is.null(ind.failed)){
+
+      mess <- paste("The model computation failed for chromosome(s):",
+                    paste(ind.failed, collapse = ", "))
+
+      warning(mess)
+
+    }
+
   }
 
-  if(!is.null(ind.failed)){
 
-    mess <- paste("The model computation failed for chromosome(s):",
-                  paste(ind.failed, collapse = ", "))
 
-    warning(mess)
+  bl_nm <- paste0("chr", res[, 2], "_", res[, 1])
+
+  if(haplo.term == "fixed"){
+
+    G.res <- data.frame(bl_nm, res[, c(2, 3, 9)])
+
+  } else if (haplo.term == "random") {
+
+    G.res <- data.frame(bl_nm, res[, c(2, 3, 6)])
 
   }
 
-  return(res)
+  colnames(G.res) <- c("mk.id", "Chrom", "Position", "p.val")
+  class(G.res) <- c("data.frame", "G_res")
+
+  return(G.res)
 
 }

@@ -9,10 +9,12 @@
 #' LD based (not for the moment). The blocks can be adjacent (non-overlapping)
 #' or they can be determined using a sliding window.
 #'
-#' @param gp \code{gpData} object with elements geno coded 0 1 2.
+#' The haplotype are determined in the following way. genotype with exactly the
+#' same marker score sequence belong to the same haplotye. Genotype varying by
+#' a single marker allele are considered to be different.
 #'
-#' @param map Four columns \code{data.frame} with \code{character} marker id,
-#' chromosome, getic position in cM and physical position in bp.
+#' @param gp \code{gpData} object with elements geno coded 0 1 2, map with
+#' marker position in cM, phenotype and family indicator.
 #'
 #' @param hap Defines either a number of markers (if \code{hap.unit=1}) or a
 #' genetic distance in cM (if \code{hap.unit=2}) that should be used for building
@@ -34,7 +36,8 @@
 #'
 #' @param ld.threshold NOT AVAILABLE NOW.
 #'
-#' @return Return a list of the three following lists:
+#' @return Return a objec of class \code{hap_bl} which is a list composed by the
+#' three following lists:
 #'
 #' \item{gen}{List of haplotype incidence matrix per chromosome. For each
 #' chromosome, the haplotype incidences matrices of all haplotype block are
@@ -44,7 +47,7 @@
 #' example if the chromosome contain two haplotype block with respectively 3 and
 #' 6 haplotype, then the number or row will be 9 (3 + 6). For each haplotype
 #' block, the incidence matrix specifies the haplotype owned by the different
-#' genotypes using 0 1 number.}
+#' genotypes using 0 or 1.}
 #'
 #' \item{map}{List of haplotype block map per chromosome. For each chromosome,
 #' the list contain a four column data frame with: the haplotype block
@@ -65,21 +68,15 @@
 
 ############ arguments
 
-# path <- "/home/vincent/Haplo_GRM/EUNAM"
-# setwd(path)
+# # sub-functions
 #
-# # genotypic data
+# source('~/Haplo_GRM/mppGWAS/R/sliding.window.cM.R')
+# source('~/Haplo_GRM/mppGWAS/R/sliding.window.mk.R')
+# source('~/Haplo_GRM/mppGWAS/R/adj.block.cM.R')
+# source('~/Haplo_GRM/mppGWAS/R/adj.block.mk.R')
 #
-# load("./data/geno/geno_gp_imp.RData")
+# data("EUNAM_gp")
 #
-# # map
-#
-# map <- read.table("./data/map/map_imp.txt", h = TRUE, stringsAsFactors = FALSE)
-# map <- map[, c(1, 3, 4, 6)]
-# colnames(map) <- c("mk.id", "chr", "cM", "bp")
-#
-# gp <- gp.imp
-# # out.dir <- "/home/vincent/Haplo_GRM/software/SelectionTools"
 # hap <- 1
 # hap.unit <- 2
 #
@@ -87,17 +84,11 @@
 # gap = 1
 # LD.based = FALSE
 # ld.threshold = 0.9
-#
-# # sub-functions
-#
-# source('~/Haplo_GRM/mppAssTest/R/sliding.window.cM.R')
-# source('~/Haplo_GRM/mppAssTest/R/sliding.window.mk.R')
-# source('~/Haplo_GRM/mppAssTest/R/adj.block.cM.R')
-# source('~/Haplo_GRM/mppAssTest/R/adj.block.mk.R')
 
 
-haplo_blocks <- function(gp, map, hap = 1, hap.unit = 1, sliding.window = FALSE,
+haplo_blocks <- function(gp, hap = 1, hap.unit = 1, sliding.window = FALSE,
                          gap = 1, LD.based = FALSE, ld.threshold = 0.9){
+
 
   # check arguments
   #################
@@ -108,11 +99,14 @@ haplo_blocks <- function(gp, map, hap = 1, hap.unit = 1, sliding.window = FALSE,
 
   }
 
-  if(!is.character(map[, 1])){
+  # test gpData and his content
 
-    stop("The map marker id are not in characters")
+  check_gpData(gp)
 
-  }
+  # reconstruct the map
+
+  map <- data.frame(rownames(gp$map), gp$map, stringsAsFactors = FALSE)
+  colnames(map) <- c("mk.id", "chr", "cM")
 
   # 1. Make a marker partition
   ############################
@@ -163,7 +157,7 @@ haplo_blocks <- function(gp, map, hap = 1, hap.unit = 1, sliding.window = FALSE,
   ##############################################
 
   chr.ind <- unlist(lapply(X = SNP_set[, 1],
-                    FUN = function(x) strsplit(x = x, split = "_")[[1]][1]))
+                           FUN = function(x) strsplit(x = x, split = "_")[[1]][1]))
 
   chr.id <- unique(chr.ind)
 
@@ -176,7 +170,7 @@ haplo_blocks <- function(gp, map, hap = 1, hap.unit = 1, sliding.window = FALSE,
 
   for(i in 1:length(chr.id)){
 
-  # selec data of the ith chromosome
+    # selec data of the ith chromosome
 
     SNP_set_i <- SNP_set[chr.ind  == chr.id[i], ]
     block.id <- unique(SNP_set_i[, 1])
@@ -184,14 +178,14 @@ haplo_blocks <- function(gp, map, hap = 1, hap.unit = 1, sliding.window = FALSE,
     gen_i <- vector(mode = "list", length = length(block.id))
     n.allele_i <- rep(0, length(block.id))
     cM_i <- rep(0, length(block.id))
-    bp_i <- rep(0, length(block.id))
+    # bp_i <- rep(0, length(block.id))
 
     for(j in 1:length(block.id)){
 
       mk.j <- SNP_set_i[SNP_set_i[, 1] == block.id[j], 2]
       geno.j <- gp$geno[, mk.j, drop = FALSE]
       cM_i[j] <- mean(map[map[, 1] %in% mk.j, 3])
-      bp_i[j] <- mean(map[map[, 1] %in% mk.j, 4])
+      # bp_i[j] <- mean(map[map[, 1] %in% mk.j, 4])
 
       haplo.list <- apply(X = geno.j, MARGIN = 1,
                           FUN = function(x) paste(x, collapse = ""))
@@ -209,15 +203,23 @@ haplo_blocks <- function(gp, map, hap = 1, hap.unit = 1, sliding.window = FALSE,
 
     gen[[i]] <- rbindlist(gen_i)
 
+    # map.hp_i <- data.frame(block.id, rep(i, length(block.id)),
+    #                        cM_i, bp_i, stringsAsFactors = FALSE)
+    # colnames(map.hp_i) <- c("markers", "chr", "cm", "bp")
+
     map.hp_i <- data.frame(block.id, rep(i, length(block.id)),
-                           cM_i, bp_i, stringsAsFactors = FALSE)
-    colnames(map.hp_i) <- c("markers", "chr", "cm", "bp")
+                           cM_i, stringsAsFactors = FALSE)
+    colnames(map.hp_i) <- c("markers", "chr", "cm")
 
     map.hp[[i]] <- map.hp_i
     nalleles[[i]] <- n.allele_i
 
   }
 
-  return(list(gen = gen, map = map.hp, nalleles = nalleles))
+  hap_bl <- list(gen = gen, map = map.hp, nalleles = nalleles)
+  class(hap_bl) <- c("list", "hap_bl")
+
+
+  return(hap_bl)
 
 }

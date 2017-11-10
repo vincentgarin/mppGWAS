@@ -4,33 +4,34 @@
 \alias{GWAS_haplo}
 \title{Haplotype Association Test}
 \usage{
-GWAS_haplo(haplo.block, haplo.term = "fixed", gp, map, trait,
-  weights = NULL, power = -1, K_i = TRUE)
+GWAS_haplo(haplo.block, haplo.term = "fixed", gp, trait = 1,
+  weights = NULL, power = -1, K_i = TRUE, n.cores = NULL,
+  verbose = FALSE)
 }
 \arguments{
-\item{haplo.block}{\code{List} containing the required data to compute an
-haplotype model. This object can be obtained using the function
-\code{\link{haplo_blocks}}.}
+\item{haplo.block}{Object of class \code{hap_bl} obtained with the function
+\code{\link{haplo_blocks}} containing the haplotype matrices necessary to
+compute the haplotype model.}
 
 \item{haplo.term}{\code{Character} variable indicating if the haplotype term
 should be computed as fixed ("fixed") or random ("random").
 Default = "fixed".}
 
-\item{gp}{\code{gpData} object with elements geno coded 0 1 2 and family
-\strong{containing the list of markers that will be used to compute the
-kinship matrix}}
+\item{gp}{\code{gpData} object with elements geno coded 0 1 2, map with
+marker position in cM, phenotype and family. \strong{
+The object contain the list of markers that will be used to compute the
+kinship matrix}.}
 
-\item{map}{Three columns \code{data.frame} corresponding to the list of
-markers present in \code{gp}. The three columns represent the marker
-identifier, the chromosome, and the marker position (cM or bp).}
+\item{trait}{\code{Numerical} or \code{character} indicator to specify which
+trait of the gp object should be used. Default = 1.}
 
-\item{trait}{\code{Numerical} vector of phenotypic trait values.}
-
-\item{weights}{Two columns \code{data.frame} containing the marker
-identifiers and the weights marker weights. For example the weights obtained
-with the LDAK program (see \code{\link{LDAK_weights}}). By default, the
-kinship matrix is computed unweighted or all weights are equal to 1, which
-correspond to the Astle and Balding kinship matrix}
+\item{weights}{object of class \code{LD_wgh} obtained by the function
+LDAK_weights() representing a data.frame with two columns: the marker
+identifier and the LD adjusted weights. These weight will be used to compute
+a LDAK as defined by Speed et al. (2012) for the genetic background
+adjustement. Default = NULL. By default, the kinship matrix is computed
+unweighted or all weights are equal to 1, which correspond to the Astle and
+Balding kinship matrix.}
 
 \item{power}{\code{Numerical} value specifying the value of the
 parameter for marker scores standardization. The column of the marker matrix
@@ -39,12 +40,19 @@ formula .Default = -1.}
 
 \item{K_i}{\code{Logical} specifying if the kinship correction should be done
 by removing the markers of the scanned chromosome. Default = TRUE.}
+
+\item{n.cores}{\code{Numeric} value indicating the number of core to be used
+if the user want to run the K-i (\code{K_i = TRUE}) scan in parallel.
+Default = NULL.}
+
+\item{verbose}{\code{Logical} indicating if function outputs should be printed.
+Default = FALSE.}
 }
 \value{
 Return:
 
-\item{res}{Data.frame with in row the haplotype blocks and in column the
-LRT and Wald statistics of each haplotype blocks.}
+\item{G.res}{Object of class \code{G_res} representing a data.frame with four
+columns: marker identifier, chromosome, position in cM and -log10(p-value).}
 }
 \description{
 Perform an haplotype genome wide association test using a kinship matrix

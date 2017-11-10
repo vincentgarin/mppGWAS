@@ -4,14 +4,12 @@
 \alias{haplo_blocks}
 \title{Determine haplotype blocks and haplotypes}
 \usage{
-haplo_blocks(gp, map, hap = 1, hap.unit = 1, sliding.window = FALSE,
-  gap = 1, LD.based = FALSE, ld.threshold = 0.9)
+haplo_blocks(gp, hap = 1, hap.unit = 1, sliding.window = FALSE, gap = 1,
+  LD.based = FALSE, ld.threshold = 0.9)
 }
 \arguments{
-\item{gp}{\code{gpData} object with elements geno coded 0 1 2.}
-
-\item{map}{Four columns \code{data.frame} with \code{character} marker id,
-chromosome, getic position in cM and physical position in bp.}
+\item{gp}{\code{gpData} object with elements geno coded 0 1 2, map with
+marker position in cM, phenotype and family indicator.}
 
 \item{hap}{Defines either a number of markers (if \code{hap.unit=1}) or a
 genetic distance in cM (if \code{hap.unit=2}) that should be used for building
@@ -34,7 +32,8 @@ haplotype blocks should be constructed based on LD. Default = FALSE.}
 \item{ld.threshold}{NOT AVAILABLE NOW.}
 }
 \value{
-Return a list of the three following lists:
+Return a objec of class \code{hap_bl} which is a list composed by the
+three following lists:
 
 \item{gen}{List of haplotype incidence matrix per chromosome. For each
 chromosome, the haplotype incidences matrices of all haplotype block are
@@ -44,7 +43,7 @@ is equal to the sum of the number of different haplotype per block. For
 example if the chromosome contain two haplotype block with respectively 3 and
 6 haplotype, then the number or row will be 9 (3 + 6). For each haplotype
 block, the incidence matrix specifies the haplotype owned by the different
-genotypes using 0 1 number.}
+genotypes using 0 or 1.}
 
 \item{map}{List of haplotype block map per chromosome. For each chromosome,
 the list contain a four column data frame with: the haplotype block
@@ -62,6 +61,11 @@ Determine haplotype block and haplotypes. The haplotype blocks can be
 determined based on several criteria: number of markers, distance in cM or
 LD based (not for the moment). The blocks can be adjacent (non-overlapping)
 or they can be determined using a sliding window.
+}
+\details{
+The haplotype are determined in the following way. genotype with exactly the
+same marker score sequence belong to the same haplotye. Genotype varying by
+a single marker allele are considered to be different.
 }
 \author{
 Vincent Garin

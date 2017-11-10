@@ -13,7 +13,7 @@
 # http://www.genetics.org/content/202/2/471.supplemental
 
 Rpoly_mod <-
-function(dataframe,gen,map,qq,r,cc,window,mixed,mixednew,rmfactor=FALSE){
+function(dataframe,gen,map,qq,r,cc,window,mixed,mixednew,rmfactor=FALSE,verbose){
 
    lower<--50
    upper<-50
@@ -224,7 +224,7 @@ function(dataframe,gen,map,qq,r,cc,window,mixed,mixednew,rmfactor=FALSE){
        # blupp<-rbind(blupp,blup)
    }
 
-   cat("Data of chr have been completed",0,'\n')
+   if(verbose){cat("Data of chr have been completed",0,'\n')}
    # colnames(blupp)<-c(paste0("Gamma",1:r),paste0("stderr",1:r))
    # result<-list(parr=parr,blupp=blupp)
    return(parr)

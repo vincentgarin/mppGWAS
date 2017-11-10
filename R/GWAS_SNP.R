@@ -78,7 +78,7 @@
 # arguments
 
 # source('~/Haplo_GRM/mppGWAS/R/test_class.R')
-# source('~/Haplo_GRM/mppGWAS/R/test_gpData_content.R')
+# source('~/Haplo_GRM/mppGWAS/R/check_object_format.R')
 #
 # data("EUNAM_gp")
 # data("EUNAM_LD_weights")
@@ -95,31 +95,13 @@
 GWAS_SNP <- function(gp, trait = 1, weights = NULL, power = -1, mk.sel = NULL,
                      K_i = TRUE, n.cores = NULL, verbose = FALSE){
 
-  # test gpData and his content
+  # check gp, trait and weights
 
-  test_gpData_content(gp)
+  check_gpData(gp)
 
-  if(!is.null(weights)){
+  check_weights(weights = weights, gp = gp)
 
-    if(!is_LD_wgh(weights)){
-
-      stop("The LD weights are not of class LD_wgh obtained with LDAK_weights().")
-
-    }
-
-  }
-
-  # check that there is a weight for each marker if weights are given
-
-  if(!is.null(weights)){
-
-    if(!(sum(colnames(gp$geno) %in% weights[, 1]) == dim(gp$geno)[2])){
-
-     stop(paste("The weight argument does not contain a value for each marker",
-                "in the gpData object (gp)."))
-
-    }
-  }
+  check_trait(trait = trait, gp = gp)
 
   # reconstruct the map
 
@@ -134,39 +116,6 @@ GWAS_SNP <- function(gp, trait = 1, weights = NULL, power = -1, mk.sel = NULL,
 
     stop(paste("the following markers:", prob.mk, "are present in mk.sel but",
          "not in the map."))
-
-  }
-
-  # check the value of trait
-
-  if(!(is.character(trait) || is.numeric(trait))){
-
-    stop("The trait object must be either numeric or character")
-
-  }
-
-  if(is.numeric(trait)){
-
-  nb.trait <- dim(gp$pheno)[3]
-
-  if(!((0 < trait) && (trait <=nb.trait))){
-
-    stop(paste("The trait indicator should be between 1 and", nb.trait,
-               "the total number of traits in the gp object"))
-
-  }
-
-  }
-
-  if(is.character(trait)){
-
-    trait.names <- attr(gp$pheno, "dimnames")[[2]]
-
-    if (!(trait %in% trait.names)){
-
-    stop(paste("trait must be one of:", trait.names))
-
-    }
 
   }
 

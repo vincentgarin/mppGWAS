@@ -110,7 +110,7 @@
 
 magicScan_mod <-
 function(dataframe,gen,map,kk.eigen,nalleles,model="Fixed-A",index=NULL,
-         window=5,step,bychr=1){
+         window=5,step,bychr=1,verbose=FALSE){
 
   d<-dataframe
   kk<-kk.eigen[[1]]
@@ -128,8 +128,13 @@ function(dataframe,gen,map,kk.eigen,nalleles,model="Fixed-A",index=NULL,
   }
 
   RR<-mixedPar(dataframe=d,qq=qq,optim.speed=FALSE)
-  cat("lambda:",RR$lambda,"Residual error:",RR$se2,"\n")
-  cat("Model:",model,"\n")
+
+  if(verbose){
+
+    cat("lambda:",RR$lambda,"Residual error:",RR$se2,"\n")
+    cat("Model:",model,"\n")
+
+  }
 
 ###
 
@@ -139,7 +144,8 @@ function(dataframe,gen,map,kk.eigen,nalleles,model="Fixed-A",index=NULL,
     scans<-list()
     for ( i in 1:chrnum){
       scans[[i]]<-Rpoly_mod(dataframe=d,gen=gen[[i]],map=map[[i]],qq=qq,
-                        r=nalleles[[i]],mixed=RR,rmfactor=FALSE)
+                        r=nalleles[[i]],mixed=RR,rmfactor=FALSE,
+                        verbose=verbose)
     }
   }
 
@@ -149,7 +155,8 @@ function(dataframe,gen,map,kk.eigen,nalleles,model="Fixed-A",index=NULL,
     scans<-list()
     for ( i in 1:chrnum){
       scans[[i]]<-Fpoly_mod(dataframe=d,gen=gen[[i]],map=map[[i]],qq=qq,
-                        r=nalleles[[i]],mixed=RR,rmfactor=FALSE)
+                        r=nalleles[[i]],mixed=RR,rmfactor=FALSE,
+                        verbose=verbose)
     }
   }
 

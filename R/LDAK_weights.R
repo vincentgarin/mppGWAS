@@ -49,7 +49,7 @@ LDAK_weights <- function(gp, bp.pos, out.dir, plink.dir, ldak.dir,
 
   # test gpData and his content
 
-  test_gpData_content(gp)
+  check_gpData(gp)
 
   # reform the map
 

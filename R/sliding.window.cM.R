@@ -35,7 +35,7 @@ sliding.window.cM <- function(map, hap, gap){
 
       dist.j <- dist.cM - dist.cM[win.cent[j]]
       list.mk_i[[j]] <- map_i[((dist.j >= 0) & (dist.j <= hap)), 1]
-      set.id_i <- c(set.id_i, paste0("chr", i, "_",
+      set.id_i <- c(set.id_i, paste0("chr", chr.id[i], "_",
                                      rep(j, length(list.mk_i[[j]]))))
 
     }

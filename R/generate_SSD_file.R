@@ -2,16 +2,14 @@
 # generate_SSD_file #
 #####################
 
-#' Kernel association test SSD files
+#' GSM association test SSD files
 #'
-#' Generate the SSD files for the kernel association test. The function
+#' Generate the SSD files for the GSM association test. The function
 #' partitions the genome in adjacent or sliding window blocks based on
 #' a fixed number of marker or cM distance.
 #'
-#' @param gp \code{gpData} object with elements geno coded 0 1 2.
-#'
-#' @param map Four columns \code{data.frame} with marker id, chromosome,
-#' getic position in cM and physical position in bp.
+#' @param gp \code{gpData} object with elements geno coded 0 1 2, map with
+#' marker position in cM, phenotype and family indicator.
 #'
 #' @param out.dir output directory where temporary files will be stored.
 #'
@@ -27,7 +25,6 @@
 #' @param hap.unit Set to 1 for building haplo blocks based on number of
 #' markers, set to 2 for building haplo blocks based on markers lying in a
 #' specified stretch of the chromosome (in cM). Default = 1.
-#'
 #'
 #' @param sliding.window \code{logical} value specifying if
 #' the haplotype blocks should be construct using a sliding window. If not,
@@ -46,9 +43,9 @@
 #'
 #' @return
 #'
-#' Create the SSD files in the location specified in \code{out.dir}. return
-#' also \code{map_plot} a two column data.frame with the chromosome and the
-#' center bp position of each marker set.
+#' Create the SSD files in the location specified in \code{out.dir} and return
+#' an object of class \code{SSD_file} that can be used to compute the GSM model
+#' using \code{GWAS_GSM()}.
 #'
 #' @author Vincent Garin
 #'
@@ -57,15 +54,15 @@
 
 ############ arguments
 
-# gp <- gp.imp
-# map <- map[, c(1, 3, 4, 6)]
+# data("EUNAM_gp")
+#
+# gp <- EUNAM_gp
 # out.dir <- "/home/vincent/Haplo_GRM/software/SKAT/data"
 # prefix <- "Test"
 # plink.dir <-  "/home/vincent/Haplo_GRM/software/PLINK"
 #
 # hap <- 1
 # hap.unit <- 1
-#
 #
 # sliding.window = TRUE
 # gap <- 1
@@ -74,9 +71,46 @@
 # ld.threshold = 0.9
 
 
-generate_SSD_file <- function(gp, map, out.dir, prefix, plink.dir, hap = 1,
+generate_SSD_file <- function(gp, out.dir, prefix = NULL, plink.dir, hap = 1,
                               hap.unit = 1, sliding.window = FALSE, gap = 1,
                               LD.based = FALSE, ld.threshold = 0.9){
+
+  # check arguments
+  #################
+
+  if(!(hap.unit %in% c(1, 2))){
+
+    stop("hap.unit should be either 1 for mk position or 2 for cM distance.")
+
+  }
+
+  if(is.null(prefix)){
+
+    stop("The prefix is not specified.")
+
+  }
+
+  # test gpData and his content
+
+  check_gpData(gp)
+
+  # Test if the path are valid
+
+  if(!file.exists(out.dir)){
+
+    stop("The directory specified in out.dir does not exits")
+
+  }
+
+  test_plink_dir(plink.dir)
+
+  # reconstruct the map
+
+  fake_bp_pos <- gp$map$pos * 250000
+
+  map <- data.frame(rownames(gp$map), gp$map, fake_bp_pos, stringsAsFactors = FALSE)
+
+  colnames(map) <- c("mk.id", "chr", "cM", "bp")
 
   temp.dir <- file.path(out.dir, "temp_dir")
   system(paste("mkdir", temp.dir))
@@ -119,6 +153,7 @@ generate_SSD_file <- function(gp, map, out.dir, prefix, plink.dir, hap = 1,
 
   }
 
+
   # produce the corresponding map
 
   set_id <- unique(SetID.file$set.id)
@@ -128,20 +163,22 @@ generate_SSD_file <- function(gp, map, out.dir, prefix, plink.dir, hap = 1,
 
   chr.id <- unique(chr.ind)
 
-  chr <- rep(1:length(chr.id), time = table(factor(chr.ind, levels = chr.id)))
+  chr <- rep(as.numeric(substr(x = chr.id, start = 4, nchar(chr.id))),
+             time = table(factor(chr.ind, levels = chr.id)))
 
   cM <- rep(0, length(set_id))
-  bp <- rep(0, length(set_id))
+  # bp <- rep(0, length(set_id))
 
   for(j in 1:length(set_id)){
 
     mk.j <- SetID.file[SetID.file[, 1] == set_id[j], 2]
     cM[j] <- mean(map[map[, 1] %in% mk.j, 3])
-    bp[j] <- mean(map[map[, 1] %in% mk.j, 4])
+    # bp[j] <- mean(map[map[, 1] %in% mk.j, 4])
 
   }
 
-  map.hp <- data.frame(set_id, chr, cM, bp, stringsAsFactors = FALSE)
+  # map.hp <- data.frame(set_id, chr, cM, bp, stringsAsFactors = FALSE)
+  map.hp <- data.frame(set_id, chr, cM, stringsAsFactors = FALSE)
 
 
   # save the SetID file
@@ -155,7 +192,8 @@ generate_SSD_file <- function(gp, map, out.dir, prefix, plink.dir, hap = 1,
   ###########################
 
   write_plink_bed(gp = gp, map = map, out.dir = temp.dir, prefix = prefix,
-                  plink.dir = plink.dir)
+                  plink.dir = plink.dir, verbose = FALSE)
+
 
   # 3. Generate the SSID files
   ############################
@@ -173,12 +211,14 @@ generate_SSD_file <- function(gp, map, out.dir, prefix, plink.dir, hap = 1,
   Generate_SSD_SetID(File.Bed, File.Bim, File.Fam, File.SetID, File.SSD,
                      File.Info)
 
-
   # delete the temporary directory
 
   system(paste("rm -rf", temp.dir))
 
+  SSD_file <- list(File.SSD = File.SSD, File.Info = File.Info, map.hp = map.hp)
+  class(SSD_file) <- c("list", "SSD_file")
 
-  return(list(File.SSD = File.SSD, File.Info = File.Info, map.hp = map.hp))
+  return(SSD_file)
+
 
 }

@@ -36,7 +36,7 @@ adj.block.cM <- function(map, hap){
       if(sum(sel.vect) > 0){
 
         list.mk_i[[j]] <- map_i[sel.vect, 1]
-        set.id_i <- c(set.id_i, paste0("chr", i, "_",
+        set.id_i <- c(set.id_i, paste0("chr", chr.id[i], "_",
                                        rep(j, length(list.mk_i[[j]]))))
 
         # update the variables

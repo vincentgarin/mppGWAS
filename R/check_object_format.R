@@ -113,3 +113,43 @@ check_weights <- function(weights, gp){
   }
 
 }
+
+# test plink dir
+
+test_plink_dir <- function(x){
+
+  if(!file.exists(x)){
+
+    stop("The plink.dir is not a valid directory")
+
+  }
+
+  if(!file.exists(file.path(x, "plink"))){
+
+    stop("The plink.dir does not contain an the plink executable file")
+
+  }
+
+}
+
+
+
+# test ldak dir
+
+test_ldak_dir <- function(x){
+
+  if(!file.exists(x)){
+
+    stop("The ldak.dir is not a valid directory")
+
+  }
+
+  if(!file.exists(file.path(x, "ldak5.beta"))){
+
+    stop("The ldak.dir does not contain an the plink executable file")
+
+  }
+
+}
+
+

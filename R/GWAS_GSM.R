@@ -2,10 +2,10 @@
 # GWAS_GSM #
 ############
 
-#' Kernel Association Test
+#' GSM Association Test
 #'
-#' Perform a kernel genome wide association test using a kinship matrix
-#' to correct for the genetic background.
+#' Perform a genetic similarity matrix (GSM) genome wide association test using
+#' a kinship matrix to correct for the genetic background.
 #'
 #' The first step of the analysis is to partition the genome into a certain
 #' number of markers sets. Several strategies are possibles. \code{hap}
@@ -41,17 +41,15 @@
 #' can be fitted using the kinship containing all markers or removing
 #' the markers of the scanned chromosome (\code{K_i = TRUE}).
 #'
-#' @param SSD_file file containing the genome partition in SNP set obtained
-#' with the function \code{\link{generate_SSD_file}}.
+#' @param SSD_file object of class \code{SSD_file} obtained with the function
+#' \code{\link{generate_SSD_file}}.
 #'
-#' @param gp \code{gpData} object with elements geno coded 0 1 2 and family
-#' \strong{containing the list of markers that will be used to compute the
-#' kinship matrix}.
+#' @param gp \code{gpData} object with elements geno coded 0 1 2, map with
+#' marker position in cM, phenotype and family. \strong{containing the list of
+#' markers that will be used to compute the kinship matrix}.
 #'
-#' @param map Four columns \code{data.frame} with marker id, chromosome,
-#' getic position in cM and physical position in bp.
-#'
-#' @param trait \code{Numerical} vector of phenotypic trait values.
+#' @param trait \code{Numerical} or \code{character} indicator to specify which
+#' trait of the gp object should be used. Default = 1.
 #'
 #' @param kernel \code{Character} element indicating the type of kernel function
 #' used to calculate the variance covariance structure using marker
@@ -72,22 +70,32 @@
 #' @param K_i \code{Logical} specifying if the kinship correction should be done
 #' by removing the markers of the scanned chromosome. Default = TRUE.
 #'
-#' @param weights Two columns \code{data.frame} containing the marker
-#' identifiers and the weights marker weights. For example the weights obtained
-#' with the LDAK program (see \code{\link{LDAK_weights}}). By default, the
-#' kinship matrix is computed unweighted or all weights are equal to 1, which
-#' correspond to the Astle and Balding kinship matrix
+#' @param weights object of class \code{LD_wgh} obtained by the function
+#' LDAK_weights() representing a data.frame with two columns: the marker
+#' identifier and the LD adjusted weights. These weight will be used to compute
+#' a LDAK as defined by Speed et al. (2012) for the genetic background
+#' adjustement. Default = NULL. By default, the kinship matrix is computed
+#' unweighted or all weights are equal to 1, which correspond to the Astle and
+#' Balding kinship matrix.
 #'
 #' @param power \code{Numerical} value specifying the value of the
 #' parameter for marker scores standardization. The column of the marker matrix
 #' (X.j) are multiplied by var(X.j)^(power/2). It correspond to alpha in the
 #' formula. Default = -1.
 #'
+#' @param n.cores \code{Numeric} value indicating the number of core to be used
+#' if the user want to run the K-i (\code{K_i = TRUE}) scan in parallel.
+#' Default = NULL.
+#'
+#' @param verbose \code{Logical} indicating if function outputs should be printed.
+#' This argument is only used for the K-i model (\code{K_i = TRUE}).
+#' Default = FALSE.
+#'
 #'
 #' @return Return:
 #'
-#' \item{res}{Data.frame with in row the haplotype blocks and in column the
-#' LRT and Wald statistics of each haplotype blocks.}
+#' \item{G_res}{Object of class \code{G_res} representing a data.frame with four
+#' columns: marker identifier, chromosome, position in cM and -log10(p-value).}
 #'
 #' @author Vincent Garin
 #'
@@ -124,37 +132,30 @@
 # power = -1
 # K_i = TRUE
 
-GWAS_GSM <- function(SSD_file, gp, map, trait, kernel = "linear",
-                           weights.beta = c(1, 25), weights.kernel = NULL,
-                           kin.correct = TRUE, K_i = TRUE, weights = NULL,
-                           power = -1){
+GWAS_GSM <- function(SSD_file, gp, trait = 1, kernel = "linear",
+                     weights.beta = c(1, 25), weights.kernel = NULL,
+                     kin.correct = TRUE, K_i = TRUE, weights = NULL,
+                     power = -1, n.cores = NULL, verbose = FALSE){
 
   # 1. Checks
   ###########
 
-  # check that the list of markers in the map is the same as the list of the
-  # genotype matrix
+  # test haplo.block
 
-  if(!identical(colnames(gp$geno), map[, 1])){
+  if(!is_SSD_file(SSD_file)){
 
-    stop(paste("The list of marker in the genotype matrix of the gpData object",
-               "and in the map are not stricly equivalent",
-               "(same content, same order)."))
+    stop(paste("The SSD_file object is not of class SSD_file. Such an object",
+               "can be obtained with the function generate_SSD_file()"))
 
   }
 
-  # check that there is a weight for each marker if weights are given
+  # check gp, trait and weights
 
-  if(!is.null(weights)){
+  check_gpData(gp)
 
-    if(!(sum(colnames(gp$geno) %in% weights[, 1]) == dim(gp$geno)[2])){
+  check_weights(weights = weights, gp = gp)
 
-      stop(paste("The weight argument does not contain a value for each marker",
-                 "in the gpData object (gp)."))
-
-    }
-  }
-
+  check_trait(trait = trait, gp = gp)
 
   ######################### end checks
 
@@ -162,6 +163,9 @@ GWAS_GSM <- function(SSD_file, gp, map, trait, kernel = "linear",
   ######################
 
   SSD.INFO <- Open_SSD(SSD_file[[1]], SSD_file[[2]])
+
+  map <- data.frame(rownames(gp$map), gp$map, stringsAsFactors = FALSE)
+  colnames(map) <- c("mk.id", "chr", "cM")
 
   # 3. Computation of the genome scan
   ###################################
@@ -184,9 +188,9 @@ GWAS_GSM <- function(SSD_file, gp, map, trait, kernel = "linear",
                         weights.beta = weights.beta,
                         obj.SNPWeight = weights.kernel)
 
-    res <- data.frame(SSD_file[[3]], -log10(out$results[, 2]),
-                      stringsAsFactors = FALSE)
-    colnames(res) <- c("mk.id", "Chrom", "Position", "p.val")
+    G_res <- data.frame(SSD_file[[3]], -log10(out$results[, 2]),
+                        stringsAsFactors = FALSE)
+    colnames(G_res) <- c("mk.id", "Chrom", "Position", "p.val")
 
   } else {
 
@@ -205,9 +209,9 @@ GWAS_GSM <- function(SSD_file, gp, map, trait, kernel = "linear",
                           weights.beta = weights.beta,
                           obj.SNPWeight = weights.kernel)
 
-      res <- data.frame(SSD_file[[3]], -log10(out$results[, 2]),
-                        stringsAsFactors = FALSE)
-      colnames(res) <- c("set.id", "chr", "cM", "bp", "p.val")
+      G_res <- data.frame(SSD_file[[3]], -log10(out$results[, 2]),
+                          stringsAsFactors = FALSE)
+      colnames(G_res) <- c("mk.id", "Chrom", "Position", "p.val")
 
 
     } else { # Remove the kth chromosome for the computation of K.
@@ -216,44 +220,76 @@ GWAS_GSM <- function(SSD_file, gp, map, trait, kernel = "linear",
 
       mk.sel_temp <- map
 
-      res <- c()
+      G_res <- c()
       chr.id <- unique(mk.sel_temp[, 2])
       n.chr <- length(chr.id)
 
-      for(i in 1:n.chr){
+      ######### multiple cores version
 
-        # modify the SSD.INFO
+      if(!is.null(n.cores)){
 
-        SSD.INFO_i <- SSD.INFO
-        SSD.INFO_i$SetInfo <- SSD.INFO_i$SetInfo[SSD_file[[3]][, 2] == chr.id[i], ]
-        SSD.INFO_i$nSets <- sum(SSD_file[[3]][, 2] == chr.id[i])
+        cl <- makeCluster(n.cores)
+        registerDoParallel(cl)
 
-        # adapt the list of selected markers
+        ###################### stop there
 
-        mk.sel_i <- mk.sel_temp[mk.sel_temp[, 2] != chr.id[i], 1]
+        res <- foreach(i=1:n.chr) %dopar% {
 
-        K <- mpp_kinship(gp = gp, weights = weights, power = power,
-                         mk.sel = mk.sel_i)
+          GWAS_GSM_i(i = i, SSD_file = SSD_file,
+                     chr.id = chr.id, mk.sel_temp = mk.sel_temp, gp = gp,
+                     weights = weights, power = power,
+                     null.mod.form = null.mod.form, dataset = dataset,
+                     kernel = kernel, weights.beta = weights.beta,
+                     weights.kernel = weights.kernel)
+
+        }
+
+        stopCluster(cl)
+
+        G_res <- do.call(what = rbind, res)
+
+      } else { # without multiple cores.
+
+        for(i in 1:n.chr){
+
+          # modify the SSD.INFO
+
+          SSD.INFO_i <- SSD.INFO
+          SSD.INFO_i$SetInfo <- SSD.INFO_i$SetInfo[SSD_file[[3]][, 2] == chr.id[i], ]
+          SSD.INFO_i$nSets <- sum(SSD_file[[3]][, 2] == chr.id[i])
+
+          # adapt the list of selected markers
+
+          mk.sel_i <- mk.sel_temp[mk.sel_temp[, 2] != chr.id[i], 1]
+
+          K <- mpp_kinship(gp = gp, weights = weights, power = power,
+                           mk.sel = mk.sel_i)
 
 
-        # compute the NULL model cr + kinship (EMMA_x)
+          # compute the NULL model cr + kinship (EMMA_x)
 
-        obj <- SKAT_NULL_emmaX(formula = as.formula(null.mod.form), data = dataset,
-                               K = K, llim = -10, ulim = 10)
+          obj <- SKAT_NULL_emmaX(formula = as.formula(null.mod.form), data = dataset,
+                                 K = K, llim = -10, ulim = 10)
 
-        out_i <- SKAT.SSD.All_Ki(SSD.INFO = SSD.INFO_i, obj, kernel = kernel,
-                                 weights.beta = weights.beta,
-                                 obj.SNPWeight = weights.kernel)
+          out_i <- SKAT.SSD.All_Ki(SSD.INFO = SSD.INFO_i, obj, kernel = kernel,
+                                   weights.beta = weights.beta,
+                                   obj.SNPWeight = weights.kernel,
+                                   verbose = verbose)
 
 
-        res_i <- data.frame(SSD_file[[3]][SSD_file[[3]][, 2] == chr.id[i], ],
-                            -log10(out_i$results[, 2]), stringsAsFactors = FALSE)
+          res_i <- data.frame(SSD_file[[3]][SSD_file[[3]][, 2] == chr.id[i], ],
+                              -log10(out_i$results[, 2]), stringsAsFactors = FALSE)
 
-        colnames(res_i) <- c("set.id", "chr", "cM", "bp", "p.val")
+          colnames(res_i) <- c("mk.id", "Chrom", "Position", "p.val")
 
-        res <- rbind(res, res_i)
+
+          G_res <- rbind(G_res, res_i)
+
+        }
 
       }
+
+
 
     } # end K_i models
 
@@ -261,9 +297,8 @@ GWAS_GSM <- function(SSD_file, gp, map, trait, kernel = "linear",
 
   Close_SSD()
 
-  # system(paste("rm -rf", temp.dir))
+  class(G_res) <- c("data.frame", "G_res")
 
-
-  return(res)
+  return(G_res)
 
 }

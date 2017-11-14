@@ -35,9 +35,8 @@
 #' Default = "fixed".
 #'
 #' @param gp \code{gpData} object with elements geno coded 0 1 2, map with
-#' marker position in cM, phenotype and family. \strong{
-#' The object contain the list of markers that will be used to compute the
-#' kinship matrix}.
+#' marker position in cM, phenotype and family. \strong{containing the list of
+#' markers that will be used to compute the kinship matrix}.
 #'
 #' @param trait \code{Numerical} or \code{character} indicator to specify which
 #' trait of the gp object should be used. Default = 1.
@@ -68,7 +67,7 @@
 #'
 #' @return Return:
 #'
-#' \item{G.res}{Object of class \code{G_res} representing a data.frame with four
+#' \item{G_res}{Object of class \code{G_res} representing a data.frame with four
 #' columns: marker identifier, chromosome, position in cM and -log10(p-value).}
 #'
 #'
@@ -314,16 +313,16 @@ GWAS_haplo <- function(haplo.block, haplo.term = "fixed", gp, trait = 1,
 
   if(haplo.term == "fixed"){
 
-    G.res <- data.frame(bl_nm, res[, c(2, 3, 9)])
+    G_res <- data.frame(bl_nm, res[, c(2, 3, 9)])
 
   } else if (haplo.term == "random") {
 
-    G.res <- data.frame(bl_nm, res[, c(2, 3, 6)])
+    G_res <- data.frame(bl_nm, res[, c(2, 3, 6)])
 
   }
 
-  colnames(G.res) <- c("mk.id", "Chrom", "Position", "p.val")
-  class(G.res) <- c("data.frame", "G_res")
+  colnames(G_res) <- c("mk.id", "Chrom", "Position", "p.val")
+  class(G_res) <- c("data.frame", "G_res")
 
   return(G.res)
 

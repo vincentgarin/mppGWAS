@@ -2,24 +2,22 @@
 % Please edit documentation in R/GWAS_GSM.R
 \name{GWAS_GSM}
 \alias{GWAS_GSM}
-\title{Kernel Association Test}
+\title{GSM Association Test}
 \usage{
-GWAS_GSM(SSD_file, gp, map, trait, kernel = "linear", weights.beta = c(1,
+GWAS_GSM(SSD_file, gp, trait = 1, kernel = "linear", weights.beta = c(1,
   25), weights.kernel = NULL, kin.correct = TRUE, K_i = TRUE,
-  weights = NULL, power = -1)
+  weights = NULL, power = -1, n.cores = NULL, verbose = FALSE)
 }
 \arguments{
-\item{SSD_file}{file containing the genome partition in SNP set obtained
-with the function \code{\link{generate_SSD_file}}.}
+\item{SSD_file}{object of class \code{SSD_file} obtained with the function
+\code{\link{generate_SSD_file}}.}
 
-\item{gp}{\code{gpData} object with elements geno coded 0 1 2 and family
-\strong{containing the list of markers that will be used to compute the
-kinship matrix}.}
+\item{gp}{\code{gpData} object with elements geno coded 0 1 2, map with
+marker position in cM, phenotype and family. \strong{containing the list of
+markers that will be used to compute the kinship matrix}.}
 
-\item{map}{Four columns \code{data.frame} with marker id, chromosome,
-getic position in cM and physical position in bp.}
-
-\item{trait}{\code{Numerical} vector of phenotypic trait values.}
+\item{trait}{\code{Numerical} or \code{character} indicator to specify which
+trait of the gp object should be used. Default = 1.}
 
 \item{kernel}{\code{Character} element indicating the type of kernel function
 used to calculate the variance covariance structure using marker
@@ -40,26 +38,36 @@ Default = TRUE.}
 \item{K_i}{\code{Logical} specifying if the kinship correction should be done
 by removing the markers of the scanned chromosome. Default = TRUE.}
 
-\item{weights}{Two columns \code{data.frame} containing the marker
-identifiers and the weights marker weights. For example the weights obtained
-with the LDAK program (see \code{\link{LDAK_weights}}). By default, the
-kinship matrix is computed unweighted or all weights are equal to 1, which
-correspond to the Astle and Balding kinship matrix}
+\item{weights}{object of class \code{LD_wgh} obtained by the function
+LDAK_weights() representing a data.frame with two columns: the marker
+identifier and the LD adjusted weights. These weight will be used to compute
+a LDAK as defined by Speed et al. (2012) for the genetic background
+adjustement. Default = NULL. By default, the kinship matrix is computed
+unweighted or all weights are equal to 1, which correspond to the Astle and
+Balding kinship matrix.}
 
 \item{power}{\code{Numerical} value specifying the value of the
 parameter for marker scores standardization. The column of the marker matrix
 (X.j) are multiplied by var(X.j)^(power/2). It correspond to alpha in the
 formula. Default = -1.}
+
+\item{n.cores}{\code{Numeric} value indicating the number of core to be used
+if the user want to run the K-i (\code{K_i = TRUE}) scan in parallel.
+Default = NULL.}
+
+\item{verbose}{\code{Logical} indicating if function outputs should be printed.
+This argument is only used for the K-i model (\code{K_i = TRUE}).
+Default = FALSE.}
 }
 \value{
 Return:
 
-\item{res}{Data.frame with in row the haplotype blocks and in column the
-LRT and Wald statistics of each haplotype blocks.}
+\item{G.res}{Object of class \code{G_res} representing a data.frame with four
+columns: marker identifier, chromosome, position in cM and -log10(p-value).}
 }
 \description{
-Perform a kernel genome wide association test using a kinship matrix
-to correct for the genetic background.
+Perform a genetic similarity matrix (GSM) genome wide association test using
+a kinship matrix to correct for the genetic background.
 }
 \details{
 The first step of the analysis is to partition the genome into a certain

@@ -51,6 +51,10 @@ LDAK_weights <- function(gp, bp.pos, out.dir, plink.dir, ldak.dir,
 
   check_gpData(gp)
 
+  test_plink_dir(plink.dir)
+
+  test_ldak_dir(ldak.dir)
+
   # reform the map
 
   map <- data.frame(rownames(gp$map), gp$map, bp.pos, stringsAsFactors = FALSE)

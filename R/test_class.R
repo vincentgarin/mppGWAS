@@ -25,3 +25,11 @@ is_hap_bl <- function(x){
   inherits(x = x, what = "hap_bl")
 
 }
+
+# SSD_file
+
+is_SSD_file <- function(x){
+
+  inherits(x = x, what = "SSD_file")
+
+}

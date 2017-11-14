@@ -18,9 +18,8 @@ should be computed as fixed ("fixed") or random ("random").
 Default = "fixed".}
 
 \item{gp}{\code{gpData} object with elements geno coded 0 1 2, map with
-marker position in cM, phenotype and family. \strong{
-The object contain the list of markers that will be used to compute the
-kinship matrix}.}
+marker position in cM, phenotype and family. \strong{containing the list of
+markers that will be used to compute the kinship matrix}.}
 
 \item{trait}{\code{Numerical} or \code{character} indicator to specify which
 trait of the gp object should be used. Default = 1.}

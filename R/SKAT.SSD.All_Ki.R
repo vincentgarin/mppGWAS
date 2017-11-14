@@ -6,7 +6,7 @@
 # object per chromosome and use is for the K_i variant of the Kernel association
 # scan.
 
-SKAT.SSD.All_Ki = function(SSD.INFO, obj, ..., obj.SNPWeight=NULL){
+SKAT.SSD.All_Ki = function(SSD.INFO, obj, ..., obj.SNPWeight=NULL, verbose){
 
   N.Set<-SSD.INFO$nSets
   OUT.Pvalue<-rep(NA,N.Set)
@@ -34,12 +34,14 @@ SKAT.SSD.All_Ki = function(SSD.INFO, obj, ..., obj.SNPWeight=NULL){
     }
   }
 
-  pb <- txtProgressBar(min=0, max=N.Set, style=3)
+  if(verbose){pb <- txtProgressBar(min=0, max=N.Set, style=3)}
+
   for(i in 1:N.Set){
     Is.Error<-TRUE
-    try1 = try(SKAT.SSD.OneSet_SetIndex(SSD.INFO=SSD.INFO, SetIndex=SSD.INFO$SetInfo$SetIndex[i],
-                                        obj=obj, ..., obj.SNPWeight=obj.SNPWeight))
-
+    try1 = try(SKAT::SKAT.SSD.OneSet_SetIndex(SSD.INFO=SSD.INFO,
+                                              SetIndex=SSD.INFO$SetInfo$SetIndex[i],
+                                              obj=obj, ...,
+                                              obj.SNPWeight=obj.SNPWeight))
 
     if(class(try1) != "try-error"){
       re<-try1
@@ -62,16 +64,14 @@ SKAT.SSD.All_Ki = function(SSD.INFO, obj, ..., obj.SNPWeight=NULL){
       }
     }
 
-    #if(floor(i/100)*100 == i){
-    #	cat("\r", i, "/", N.Set, "were done");
-    #}
-    setTxtProgressBar(pb, i)
+   if(verbose){setTxtProgressBar(pb, i)}
 
   }
-  close(pb)
+  if(verbose){close(pb)}
 
 
-  out.tbl<-data.frame(SetID=SSD.INFO$SetInfo$SetID, P.value=OUT.Pvalue, N.Marker.All=OUT.Marker, N.Marker.Test=OUT.Marker.Test)
+  out.tbl<-data.frame(SetID=SSD.INFO$SetInfo$SetID, P.value=OUT.Pvalue,
+                      N.Marker.All=OUT.Marker, N.Marker.Test=OUT.Marker.Test)
   re<-list(results=out.tbl,P.value.Resampling=OUT.Pvalue.Resampling)
   class(re)<-"SKAT_SSD_ALL"
 

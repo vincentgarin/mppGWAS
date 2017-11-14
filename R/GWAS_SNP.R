@@ -51,7 +51,7 @@
 #'
 #' @return Return:
 #'
-#' \item{G.res}{Object of class \code{G_res} representing a data.frame with four
+#' \item{G_res}{Object of class \code{G_res} representing a data.frame with four
 #' columns: marker identifier, chromosome, position in cM and -log10(p-value).}
 #'
 #' @author Vincent Garin
@@ -144,9 +144,9 @@ GWAS_SNP <- function(gp, trait = 1, weights = NULL, power = -1, mk.sel = NULL,
     ans <- sommer::GWAS(Y = pheno, X = X, Z = ETA, W = gp$geno, method = "EMMA",
                 silent = !verbose, gwas.plots = FALSE)
 
-    G.res <- data.frame(map, ans$W.scores$score[1, ], stringsAsFactors = FALSE)
-    colnames(G.res) <- c("mk.id", "Chrom", "Position", "p.val")
-    class(G.res) <- c("data.frame", "G_res")
+    G_res <- data.frame(map, ans$W.scores$score[1, ], stringsAsFactors = FALSE)
+    colnames(G_res) <- c("mk.id", "Chrom", "Position", "p.val")
+    class(G_res) <- c("data.frame", "G_res")
 
   } else { # Remove the kth chromosome for the computation of K.
 
@@ -207,11 +207,12 @@ GWAS_SNP <- function(gp, trait = 1, weights = NULL, power = -1, mk.sel = NULL,
 
     }
 
-    G.res <- data.frame(map, p.val)
-    colnames(G.res) <- c("mk.id", "Chrom", "Position", "p.val")
+    G_res <- data.frame(map, p.val)
+    colnames(G_res) <- c("mk.id", "Chrom", "Position", "p.val")
+    class(G_res) <- c("data.frame", "G_res")
 
   }
 
-  return(G.res)
+  return(G_res)
 
 }

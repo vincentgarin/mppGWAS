@@ -2,17 +2,15 @@
 % Please edit documentation in R/generate_SSD_file.R
 \name{generate_SSD_file}
 \alias{generate_SSD_file}
-\title{Kernel association test SSD files}
+\title{GSM association test SSD files}
 \usage{
-generate_SSD_file(gp, map, out.dir, prefix, plink.dir, hap = 1,
+generate_SSD_file(gp, out.dir, prefix = NULL, plink.dir, hap = 1,
   hap.unit = 1, sliding.window = FALSE, gap = 1, LD.based = FALSE,
   ld.threshold = 0.9)
 }
 \arguments{
-\item{gp}{\code{gpData} object with elements geno coded 0 1 2.}
-
-\item{map}{Four columns \code{data.frame} with marker id, chromosome,
-getic position in cM and physical position in bp.}
+\item{gp}{\code{gpData} object with elements geno coded 0 1 2, map with
+marker position in cM, phenotype and family indicator.}
 
 \item{out.dir}{output directory where temporary files will be stored.}
 
@@ -43,12 +41,12 @@ haplotype blocks should be constructed based on LD. Default = FALSE.}
 \item{ld.threshold}{NOT AVAILABLE NOW.}
 }
 \value{
-Create the SSD files in the location specified in \code{out.dir}. return
-also \code{map_plot} a two column data.frame with the chromosome and the
-center bp position of each marker set.
+Create the SSD files in the location specified in \code{out.dir} and return
+an object of class \code{SSD_file} that can be used to compute the GSM model
+using \code{GWAS_GSM()}.
 }
 \description{
-Generate the SSD files for the kernel association test. The function
+Generate the SSD files for the GSM association test. The function
 partitions the genome in adjacent or sliding window blocks based on
 a fixed number of marker or cM distance.
 }

@@ -32,7 +32,7 @@ sliding.window.mk <- function(map, hap, gap){
     }
 
     set.id_i <- rep(1:dim(partition)[1], each = hap)
-    set.id_i <- paste0("chr", i, "_", set.id_i)
+    set.id_i <- paste0("chr", chr.id[i], "_", set.id_i)
     set.id <- c(set.id, set.id_i)
 
     snp.id_i <- apply(X = partition, MARGIN = 1, FUN = function(x, names) names[x],

@@ -5,7 +5,7 @@
 \title{GSM Association Test}
 \usage{
 GWAS_GSM(SSD_file, gp, trait = 1, kernel = "linear.weighted",
-  weights.beta = c(1, 1), weights.kernel = NULL, kin.correct = TRUE,
+  weights.beta = c(0.5, 0.5), weights.kernel = NULL, kin.correct = TRUE,
   K_i = TRUE, weights = NULL, power = -1, n.cores = NULL,
   verbose = FALSE)
 }
@@ -27,7 +27,7 @@ set information. can e one of: "linear", "linear.weighted", "IBS",
 function SKAT (pacakge SKAT). Default = "linear.weighted".}
 
 \item{weights.beta}{a numeric vector of parameters for the beta weights for
-the weighted kernels. Default = c(1, 1).}
+the weighted kernels. Default = c(0.5, 0.5).}
 
 \item{weights.kernel}{NOT AVAILABLE NOW. Vector of own provided weights for
 for the kernel function. Default = NULL.}

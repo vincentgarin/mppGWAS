@@ -191,13 +191,23 @@ GWAS_GSM <- function(SSD_file, gp, trait = 1, kernel = "linear.weighted",
   map <- data.frame(rownames(gp$map), gp$map, stringsAsFactors = FALSE)
   colnames(map) <- c("mk.id", "chr", "cM")
 
+  if(is.numeric(trait)){
+
+    pheno <- gp$pheno[, 1, trait]
+
+  } else {
+    trait.names <- attr(gp$pheno, "dimnames")[[2]]
+    pheno <- gp$pheno[, 1, which(trait %in% trait.names)]
+
+  }
+
   # 3. Computation of the genome scan
   ###################################
 
   # 3.1 cross-specific intercept term (used in all three models)
 
   cr.mat <- IncMat_cross(gp$covar$family)
-  dataset <- data.frame(trait, cr.mat)
+  dataset <- data.frame(pheno, cr.mat)
   colnames(dataset) <- c("trait", paste0("cr", 1:dim(cr.mat)[2]))
   null.mod.form <- paste("trait ~", paste(paste0("cr", 1:dim(cr.mat)[2]),
                                           collapse = "+"))
@@ -252,12 +262,10 @@ GWAS_GSM <- function(SSD_file, gp, trait = 1, kernel = "linear.weighted",
 
       if(!is.null(n.cores)){
 
-        cl <- makeCluster(n.cores)
-        registerDoParallel(cl)
+        cl <- parallel::makeCluster(n.cores)
+        doParallel::registerDoParallel(cl)
 
-        ###################### stop there
-
-        res <- foreach(i=1:n.chr) %dopar% {
+        res <- foreach::foreach(i=1:n.chr) %dopar% {
 
           GWAS_GSM_i(i = i, SSD_file = SSD_file,
                      chr.id = chr.id, mk.sel_temp = mk.sel_temp, gp = gp,
@@ -268,7 +276,7 @@ GWAS_GSM <- function(SSD_file, gp, trait = 1, kernel = "linear.weighted",
 
         }
 
-        stopCluster(cl)
+        parallel::stopCluster(cl)
 
         G_res <- do.call(what = rbind, res)
 

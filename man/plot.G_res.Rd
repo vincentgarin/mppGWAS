@@ -26,6 +26,8 @@ The function call functions from the package qqman (Turner, 2014).
 \references{
 Turner, S.D. qqman: an R package for visualizing GWAS results using Q-Q and
 manhattan plots. biorXiv DOI: 10.1101/005165 (2014).
+
+# @export: not functionning for the moment
 }
 \author{
 Vincent Garin

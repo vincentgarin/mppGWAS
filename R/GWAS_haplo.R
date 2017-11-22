@@ -111,12 +111,19 @@
 #' plot_qq(res)
 #'
 #' @import data.table
+#' @import doParallel
+#' @import foreach
+#' @import parallel
 #' @import SKAT
+#' @import stats
+#' @import synbreed
+#' @import utils
 #' @import zoo
 #' @importFrom utils read.table setTxtProgressBar tail txtProgressBar write.table
-#' @importFrom sommer mmer
+#' @importFrom sommer GWAS
 #' @importFrom stats as.formula model.matrix optim pchisq
 #' @importFrom qqman manhattan qq
+#' @importFrom foreach %dopar%
 #'
 #' @export
 #'
@@ -189,6 +196,7 @@ GWAS_haplo <- function(haplo.block, haplo.term = "fixed", gp, trait = 1,
 
   } else {
 
+    trait.names <- attr(gp$pheno, "dimnames")[[2]]
     pheno <- gp$pheno[, 1, which(trait %in% trait.names)]
 
   }
@@ -238,18 +246,19 @@ GWAS_haplo <- function(haplo.block, haplo.term = "fixed", gp, trait = 1,
 
     if(!is.null(n.cores)){
 
-      cl <- makeCluster(n.cores)
-      registerDoParallel(cl)
+      cl <- parallel::makeCluster(n.cores)
+      doParallel::registerDoParallel(cl)
 
-      res <- foreach(i=1:n.chr) %dopar% {
+      res <- foreach::foreach(i=1:n.chr) %dopar% {
 
         GWAS_haplo_i(i = i, chr.id = chr.id, map = map, mk.sel_temp = mk.sel_temp,
                      gp = gp, weights = weights, power = power, d = d,
-                     haplo.block = haplo.block, model = model, verbose = verbose)
+                     haplo.block = haplo.block, haplo.term = haplo.term,
+                     model = model, verbose = verbose)
 
       }
 
-      stopCluster(cl)
+      parallel::stopCluster(cl)
 
       ind.failed <- unlist(lapply(X = res, FUN = function(x) x[[2]]))
       res <- lapply(X = res, FUN = function(x) x[[1]])

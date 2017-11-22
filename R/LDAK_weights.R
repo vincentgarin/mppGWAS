@@ -44,6 +44,8 @@
 #'
 #' # form the gpData object
 #'
+#' library(synbreed)
+#'
 #' data("EUNAM_geno")
 #' data("EUNAM_map")
 #' data("EUNAM_pheno")

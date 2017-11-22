@@ -41,6 +41,8 @@ here: http://zzz.bwh.harvard.edu/plink/download.shtml.
 
 # form the gpData object
 
+library(synbreed)
+
 data("EUNAM_geno")
 data("EUNAM_map")
 data("EUNAM_pheno")

@@ -146,6 +146,7 @@ GWAS_SNP <- function(gp, trait = 1, weights = NULL, power = -1, mk.sel = NULL,
 
   } else {
 
+    trait.names <- attr(gp$pheno, "dimnames")[[2]]
     pheno <- gp$pheno[, 1, which(trait %in% trait.names)]
 
   }
@@ -183,17 +184,17 @@ GWAS_SNP <- function(gp, trait = 1, weights = NULL, power = -1, mk.sel = NULL,
 
     if(!is.null(n.cores)){
 
-      cl <- makeCluster(n.cores)
-      registerDoParallel(cl)
+      cl <- parallel::makeCluster(n.cores)
+      doParallel::registerDoParallel(cl)
 
-      res <- foreach(i=1:n.chr) %dopar% {
+      res <- foreach::foreach(i=1:n.chr) %dopar% {
 
         GWAS_SNP_i(i = i, chr.id = chr.id, gp = gp, X = X, pheno = pheno, map = map,
                    mk.sel_temp = mk.sel_temp, weights = weights, power = power)
 
       }
 
-      stopCluster(cl)
+      parallel::stopCluster(cl)
 
       p.val <- unlist(res)
 

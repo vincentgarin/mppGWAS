@@ -4,16 +4,19 @@ Title: multi-parent populations GWAS QTL detection
 Version: 0.1.0
 Author: Vincent Garin
 Maintainer: Vincent Garin <vincent.garin@wur.nl>
-Description: Peform QTL analyses in multi-parent populations (MPPs) using GWAS methods
+Depends: R (>= 2.10)
+Description: Peform QTL analyses in multi-parent populations (MPPs) using GWAS methods.
 License: GPL (>=2)
 Imports:
     data.table,
     doParallel,
     foreach,
+    parallel,
     qqman,
     sommer,
     SKAT,
     stats,
+    synbreed,
     utils,
     zoo
 Suggests: knitr, rmarkdown

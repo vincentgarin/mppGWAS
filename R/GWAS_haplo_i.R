@@ -6,7 +6,7 @@
 
 
 GWAS_haplo_i <- function(i, chr.id, map, mk.sel_temp, gp, weights, power, d,
-                         haplo.block, model, verbose){
+                         haplo.block, haplo.term, model, verbose){
 
   mk_chr_i <- map[map[, 2] == chr.id[i], 1]
 

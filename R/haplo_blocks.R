@@ -63,6 +63,16 @@
 #'
 #' @author Vincent Garin
 #'
+#' @examples
+#'
+#' data("EUNAM_gp")
+#'
+#' # for gp object construction see examples of LDAK_weights()
+#'
+#' hap_bl <- haplo_blocks(gp = EUNAM_gp, hap = 3, hap.unit = 1,
+#'                       sliding.window = FALSE, gap = 1)
+#'
+#'
 #' @export
 #'
 

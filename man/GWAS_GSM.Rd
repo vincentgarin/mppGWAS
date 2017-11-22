@@ -4,9 +4,10 @@
 \alias{GWAS_GSM}
 \title{GSM Association Test}
 \usage{
-GWAS_GSM(SSD_file, gp, trait = 1, kernel = "linear", weights.beta = c(1,
-  25), weights.kernel = NULL, kin.correct = TRUE, K_i = TRUE,
-  weights = NULL, power = -1, n.cores = NULL, verbose = FALSE)
+GWAS_GSM(SSD_file, gp, trait = 1, kernel = "linear.weighted",
+  weights.beta = c(1, 1), weights.kernel = NULL, kin.correct = TRUE,
+  K_i = TRUE, weights = NULL, power = -1, n.cores = NULL,
+  verbose = FALSE)
 }
 \arguments{
 \item{SSD_file}{object of class \code{SSD_file} obtained with the function
@@ -23,10 +24,10 @@ trait of the gp object should be used. Default = 1.}
 used to calculate the variance covariance structure using marker
 set information. can e one of: "linear", "linear.weighted", "IBS",
 "IBS.weighted", "quadratic" and "2wayIX". For details see details of the
-function SKAT (pacakge SKAT). Default = "linear".}
+function SKAT (pacakge SKAT). Default = "linear.weighted".}
 
 \item{weights.beta}{a numeric vector of parameters for the beta weights for
-the weighted kernels. Default = c(1, 25).}
+the weighted kernels. Default = c(1, 1).}
 
 \item{weights.kernel}{NOT AVAILABLE NOW. Vector of own provided weights for
 for the kernel function. Default = NULL.}
@@ -62,7 +63,7 @@ Default = FALSE.}
 \value{
 Return:
 
-\item{G.res}{Object of class \code{G_res} representing a data.frame with four
+\item{G_res}{Object of class \code{G_res} representing a data.frame with four
 columns: marker identifier, chromosome, position in cM and -log10(p-value).}
 }
 \description{
@@ -103,6 +104,31 @@ By default, the kinship is computed using the method of Astle and Balding
 the weights computed with the function \code{\link{LDAK_weights}}. The model
 can be fitted using the kinship containing all markers or removing
 the markers of the scanned chromosome (\code{K_i = TRUE}).
+}
+\examples{
+
+data("EUNAM_gp")
+data("EUNAM_LD_weights")
+
+# for gp object construction and weights computation see examples of
+# LDAK_weights()
+
+\dontrun{
+
+  plink.dir <- "/home/.../PLINK"
+
+  SSD_file <- generate_SSD_file(gp = EUNAM_gp, out.dir = getwd(), prefix = "Test",
+                                plink.dir = plink.dir, hap = 1, hap.unit = 2,
+                                sliding.window = TRUE)
+
+  res <- GWAS_GSM(SSD_file = SSD_file, gp = EUNAM_gp, kin.correct = TRUE,
+                  weights = EUNAM_LD_weights, K_i = TRUE)
+
+  plot_manhattan(res)
+  plot_qq(res)
+
+}
+
 }
 \references{
 Astle, W., & Balding, D. J. (2009). Population structure and cryptic

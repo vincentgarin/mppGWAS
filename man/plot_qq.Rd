@@ -7,7 +7,8 @@
 plot_qq(res)
 }
 \arguments{
-\item{res}{result of function \code{SNP_AssTest}.}
+\item{res}{Object of class \code{G_res} obtained with function
+\code{\link{GWAS_SNP}}, \code{\link{GWAS_haplo}}, \code{\link{GWAS_GSM}}.}
 }
 \description{
 Plot the results of an association test using manhattan plot using the

@@ -37,6 +37,39 @@ This function use the LDAK 5 beta executable file that can be download here:
 http://dougspeed.com/ldak/ and the plink executable file that can be downloaded
 here: http://zzz.bwh.harvard.edu/plink/download.shtml.
 }
+\examples{
+
+# form the gpData object
+
+data("EUNAM_geno")
+data("EUNAM_map")
+data("EUNAM_pheno")
+
+cross.ind <- substr(rownames(EUNAM_pheno), 1, 5)
+
+map_gp <- EUNAM_map[, 2:3]
+colnames(map_gp) <- c("chr", "pos")
+rownames(map_gp) <- EUNAM_map[, 1]
+
+family <- data.frame(cross.ind)
+rownames(family) <- rownames(EUNAM_pheno)
+
+gp <- create.gpData(pheno = EUNAM_pheno, geno = EUNAM_geno, family = family,
+                    map = map_gp)
+
+# compute the LDAK weights
+
+\dontrun{
+
+  plink.dir = "/home/.../PLINK"
+  ldak.dir <- "/home/.../LDAK"
+
+  wgt <- LDAK_weights(gp = gp, bp.pos = EUNAM_map[, 4], out.dir = getwd(),
+                      plink.dir = plink.dir, ldak.dir = ldak.dir)
+
+}
+
+}
 \references{
 Speed, D., Hemani, G., Johnson, M. R., & Balding, D. J. (2012).
 Improved heritability estimation from genome-wide SNPs. The American Journal

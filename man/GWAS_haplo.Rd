@@ -50,7 +50,7 @@ Default = FALSE.}
 \value{
 Return:
 
-\item{G.res}{Object of class \code{G_res} representing a data.frame with four
+\item{G_res}{Object of class \code{G_res} representing a data.frame with four
 columns: marker identifier, chromosome, position in cM and -log10(p-value).}
 }
 \description{
@@ -76,6 +76,26 @@ the markers of the scanned chromosome (\code{K_i = TRUE}). In the sitation,
 where the markers of the scanned chromosomes are removed (\code{K_i = TRUE}),
 if the computation failed for one or several chromosomes, their results
 are set to 0 and a warning message is produced at the end of the scan.
+}
+\examples{
+
+# GWAS haplotype
+
+data("EUNAM_gp")
+data("EUNAM_LD_weights")
+
+# for gp object construction and weights computation see examples of
+# LDAK_weights()
+
+hap_bl <- haplo_blocks(gp = EUNAM_gp, hap = 3, hap.unit = 1,
+                       sliding.window = FALSE, gap = 1)
+
+res <- GWAS_haplo(haplo.block = hap_bl, haplo.term = "fixed", gp = EUNAM_gp,
+                  weights = EUNAM_LD_weights, K_i = TRUE, verbose = FALSE)
+
+plot_manhattan(res)
+plot_qq(res)
+
 }
 \references{
 Astle, W., & Balding, D. J. (2009). Population structure and cryptic

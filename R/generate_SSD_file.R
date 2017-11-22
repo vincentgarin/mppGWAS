@@ -39,8 +39,6 @@
 #'
 #' @param ld.threshold NOT AVAILABLE NOW.
 #'
-#'
-#'
 #' @return
 #'
 #' Create the SSD files in the location specified in \code{out.dir} and return
@@ -48,6 +46,21 @@
 #' using \code{GWAS_GSM()}.
 #'
 #' @author Vincent Garin
+#'
+#' @examples
+#'
+#' data("EUNAM_gp")
+#'
+#' # for gp object construction see examples of LDAK_weights()
+#'
+#' \dontrun{
+#'
+#' plink.dir <- "/home/.../PLINK"
+#'
+#' SSD_file <- generate_SSD_file(gp = EUNAM_gp, out.dir = getwd(), prefix = "Test",
+#'                               plink.dir = plink.dir, hap = 1, hap.unit = 2,
+#'                               sliding.window = TRUE)
+#' }
 #'
 #' @export
 #'

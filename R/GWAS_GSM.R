@@ -55,10 +55,10 @@
 #' used to calculate the variance covariance structure using marker
 #' set information. can e one of: "linear", "linear.weighted", "IBS",
 #' "IBS.weighted", "quadratic" and "2wayIX". For details see details of the
-#' function SKAT (pacakge SKAT). Default = "linear".
+#' function SKAT (pacakge SKAT). Default = "linear.weighted".
 #'
 #' @param weights.beta a numeric vector of parameters for the beta weights for
-#' the weighted kernels. Default = c(1, 25).
+#' the weighted kernels. Default = c(0.5, 0.5).
 #'
 #' @param weights.kernel NOT AVAILABLE NOW. Vector of own provided weights for
 #' for the kernel function. Default = NULL.
@@ -116,6 +116,30 @@
 #' Rare-variant association testing for sequencing data with the sequence kernel
 #' association test. The American Journal of Human Genetics, 89(1), 82-93.
 #'
+#' @examples
+#'
+#' data("EUNAM_gp")
+#' data("EUNAM_LD_weights")
+#'
+#' # for gp object construction and weights computation see examples of
+#' # LDAK_weights()
+#'
+#' \dontrun{
+#'
+#'   plink.dir <- "/home/.../PLINK"
+#'
+#'   SSD_file <- generate_SSD_file(gp = EUNAM_gp, out.dir = getwd(), prefix = "Test",
+#'                                 plink.dir = plink.dir, hap = 1, hap.unit = 2,
+#'                                 sliding.window = TRUE)
+#'
+#'   res <- GWAS_GSM(SSD_file = SSD_file, gp = EUNAM_gp, kin.correct = TRUE,
+#'                   weights = EUNAM_LD_weights, K_i = TRUE)
+#'
+#'   plot_manhattan(res)
+#'   plot_qq(res)
+#'
+#' }
+#'
 #' @export
 #'
 
@@ -132,8 +156,8 @@
 # power = -1
 # K_i = TRUE
 
-GWAS_GSM <- function(SSD_file, gp, trait = 1, kernel = "linear",
-                     weights.beta = c(1, 25), weights.kernel = NULL,
+GWAS_GSM <- function(SSD_file, gp, trait = 1, kernel = "linear.weighted",
+                     weights.beta = c(0.5, 0.5), weights.kernel = NULL,
                      kin.correct = TRUE, K_i = TRUE, weights = NULL,
                      power = -1, n.cores = NULL, verbose = FALSE){
 

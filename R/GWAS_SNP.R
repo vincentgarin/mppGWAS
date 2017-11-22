@@ -72,6 +72,23 @@
 #' Improved heritability estimation from genome-wide SNPs. The American Journal
 #' of Human Genetics, 91(6), 1011-1021.
 #'
+#'@examples
+#'
+#' data("EUNAM_gp")
+#' data("EUNAM_LD_weights")
+#'
+#' # for gp object construction anb weights computation see examples of
+#' # LDAK_weights()
+#'
+#'\dontrun{
+#'
+#' res <- GWAS_SNP(gp = EUNAM_gp, trait = 1, weights = EUNAM_LD_weights, K_i = TRUE)
+#'
+#' plot_manhattan(res)
+#' plot_qq(res)
+#'
+#'}
+#'
 #' @export
 #'
 

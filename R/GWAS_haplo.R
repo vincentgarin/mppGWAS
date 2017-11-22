@@ -91,6 +91,25 @@
 #' multiparent advanced generation intercross (MAGIC) populations.
 #' Genetics, 202(2), 471-486.
 #'
+#' @examples
+#'
+#' # GWAS haplotype
+#'
+#' data("EUNAM_gp")
+#' data("EUNAM_LD_weights")
+#'
+#' # for gp object construction and weights computation see examples of
+#' # LDAK_weights()
+#'
+#' hap_bl <- haplo_blocks(gp = EUNAM_gp, hap = 3, hap.unit = 1,
+#'                        sliding.window = FALSE, gap = 1)
+#'
+#' res <- GWAS_haplo(haplo.block = hap_bl, haplo.term = "fixed", gp = EUNAM_gp,
+#'                   weights = EUNAM_LD_weights, K_i = TRUE, verbose = FALSE)
+#'
+#' plot_manhattan(res)
+#' plot_qq(res)
+#'
 #' @import data.table
 #' @import SKAT
 #' @import zoo
@@ -324,6 +343,6 @@ GWAS_haplo <- function(haplo.block, haplo.term = "fixed", gp, trait = 1,
   colnames(G_res) <- c("mk.id", "Chrom", "Position", "p.val")
   class(G_res) <- c("data.frame", "G_res")
 
-  return(G.res)
+  return(G_res)
 
 }

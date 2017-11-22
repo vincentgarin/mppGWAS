@@ -67,6 +67,17 @@ The haplotype are determined in the following way. genotype with exactly the
 same marker score sequence belong to the same haplotye. Genotype varying by
 a single marker allele are considered to be different.
 }
+\examples{
+
+data("EUNAM_gp")
+
+# for gp object construction see examples of LDAK_weights()
+
+hap_bl <- haplo_blocks(gp = EUNAM_gp, hap = 3, hap.unit = 1,
+                      sliding.window = FALSE, gap = 1)
+
+
+}
 \author{
 Vincent Garin
 }

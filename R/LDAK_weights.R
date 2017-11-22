@@ -40,6 +40,38 @@
 #' Improved heritability estimation from genome-wide SNPs. The American Journal
 #' of Human Genetics, 91(6), 1011-1021.
 #'
+#' @examples
+#'
+#' # form the gpData object
+#'
+#' data("EUNAM_geno")
+#' data("EUNAM_map")
+#' data("EUNAM_pheno")
+#'
+#' cross.ind <- substr(rownames(EUNAM_pheno), 1, 5)
+#'
+#' map_gp <- EUNAM_map[, 2:3]
+#' colnames(map_gp) <- c("chr", "pos")
+#' rownames(map_gp) <- EUNAM_map[, 1]
+#'
+#' family <- data.frame(cross.ind)
+#' rownames(family) <- rownames(EUNAM_pheno)
+#'
+#' gp <- create.gpData(pheno = EUNAM_pheno, geno = EUNAM_geno, family = family,
+#'                     map = map_gp)
+#'
+#' # compute the LDAK weights
+#'
+#' \dontrun{
+#'
+#'   plink.dir = "/home/.../PLINK"
+#'   ldak.dir <- "/home/.../LDAK"
+#'
+#'   wgt <- LDAK_weights(gp = gp, bp.pos = EUNAM_map[, 4], out.dir = getwd(),
+#'                       plink.dir = plink.dir, ldak.dir = ldak.dir)
+#'
+#' }
+#'
 #' @export
 #'
 

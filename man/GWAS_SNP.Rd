@@ -42,7 +42,7 @@ Default = FALSE.}
 \value{
 Return:
 
-\item{G.res}{Object of class \code{G_res} representing a data.frame with four
+\item{G_res}{Object of class \code{G_res} representing a data.frame with four
 columns: marker identifier, chromosome, position in cM and -log10(p-value).}
 }
 \description{
@@ -60,6 +60,24 @@ kinship (LDAK) kinship matrix using the method of Speed et al. (2012) by
 introducing the weights computed with the function \code{\link{LDAK_weights}}.
 The model can be fitted using the kinship containing all markers or removing
 the markers of the scanned chromosome (\code{K_i = TRUE}).
+}
+\examples{
+
+data("EUNAM_gp")
+data("EUNAM_LD_weights")
+
+# for gp object construction anb weights computation see examples of
+# LDAK_weights()
+
+\dontrun{
+
+res <- GWAS_SNP(gp = EUNAM_gp, trait = 1, weights = EUNAM_LD_weights, K_i = TRUE)
+
+plot_manhattan(res)
+plot_qq(res)
+
+}
+
 }
 \references{
 Astle, W., & Balding, D. J. (2009). Population structure and cryptic

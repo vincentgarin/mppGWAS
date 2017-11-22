@@ -7,9 +7,8 @@
 #' Plot the results of an association test using manhattan plot using the
 #' \code{manhattan} function of the qqman package.
 #'
-#' @param res Four column \code{data.frame} with: marker identifier, chromosome,
-#' position (cM or bp) and -log10(p-value). For example result of function
-#' \code{AssTest_SNP}.
+#' @param res Object of class \code{G_res} obtained with function
+#' \code{\link{GWAS_SNP}}, \code{\link{GWAS_haplo}}, \code{\link{GWAS_GSM}}.
 #'
 #' @param ... Arguments passed on to other plot/points functions
 #'

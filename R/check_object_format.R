@@ -124,7 +124,7 @@ test_plink_dir <- function(x){
 
   }
 
-  if(!file.exists(file.path(x, "plink"))){
+  if(!file.exists(file.path(x, "plink")) && !file.exists(file.path(x, "plink.exe"))){
 
     stop("The plink.dir does not contain an the plink executable file")
 
